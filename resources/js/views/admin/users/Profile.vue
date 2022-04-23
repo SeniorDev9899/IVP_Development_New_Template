@@ -3,26 +3,23 @@
     <!-- Page Header  -->
 
     <div class="page-header">
-      <h3 class="page-title">{{ $t("profile.user_profile") }}</h3>
+      <h3 class="page-title">用户资料</h3>
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">{{ $t("profile.home") }}</a>
+          <a href="#">员工管理</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="/admin/users/all">{{ $t("profile.users") }}</a>
+          <a href="/admin/users/all">用户资料</a>
         </li>
         <li class="breadcrumb-item active">
-          {{ user_first_name }} {{ user_last_name }}
+          {{ name }}
         </li>
       </ol>
     </div>
 
     <!-- Notification According to the Email Verificaiton -->
 
-    <div
-      v-if="current_user_verification_status == 'nonactivated'"
-      class="row member-verification"
-    >
+    <div v-if="user_role == 'practitioner'" class="row member-verification">
       <button
         class="btn btn-warning btn-rounded"
         @click="startMemberVerification"
@@ -30,7 +27,7 @@
         <div class="verification-icon">
           <i class="fa-solid fa-user-check"></i>
         </div>
-        <span>{{ $t("profile.start_verification") }}</span>
+        <span>開始驗證</span>
       </button>
     </div>
 
@@ -42,7 +39,7 @@
         <b-tab active>
           <template #title>
             <span><i class="fa fa-user" aria-hidden="true"></i></span>
-            <span>{{ $t("profile.edit_profile") }}</span>
+            <span>编辑个人资料</span>
           </template>
 
           <!-- User Information -->
@@ -52,9 +49,8 @@
             :current_user_id="current_user_id"
             :user_id="user_id"
             :user_picture="user_picture"
-            :user_first_name="user_first_name"
-            :user_last_name="user_last_name"
-            :user_email="user_email"
+            :name="name"
+            :username="user_name"
             :user_gender="user_gender"
             :current_user_role="current_user_role"
             :user_role="user_role"
@@ -64,17 +60,20 @@
             :user_company="user_company"
             :user_region="user_region"
             :user_health_status="user_health_status"
-            :current_user_verification_status="current_user_verification_status"
             :tooltipText="tooltipText"
+            :remarkInfo="remark_file_path"
+            :comments="user_comments"
             @userAvatarChange="onUserAvatarChange"
             @produceQR="onProduceQR"
             @updateKeepUserInfo="onUpdateKeepUserInfo"
+            @downloadFile="onDownloadFile"
+            @fileChanged="onFileChanged"
           />
         </b-tab>
         <b-tab>
           <template #title>
             <span><i class="fa fa-qrcode" aria-hidden="true"></i></span>
-            <span>{{ $t("profile.qr_code") }}</span>
+            <span>身份信息识别卡</span>
           </template>
 
           <!-- QR Code Generation -->
@@ -84,8 +83,7 @@
             :src="src2"
             :qr_text="qrText"
             :qr_size="qrSize"
-            :user_first_name="user_first_name"
-            :user_last_name="user_last_name"
+            :name="name"
             :user_serial_number="user_serial_number"
             :user_company="user_company"
             :user_validity_period="user_validity_period"
@@ -94,14 +92,12 @@
         <b-tab>
           <template #title>
             <span><i class="fa fa-comment" aria-hidden="true"></i></span>
-            <span>{{ $t("profile.remark_info") }}</span>
+            <span>历史记录</span>
           </template>
           <div class="card">
             <div class="card-body padding-remark-50">
               <div class="user-remark_info">
-                <h1>
-                  {{ $t("profile.remark.title") }}
-                </h1>
+                <h1>用户信息历史记录</h1>
                 <table-component
                   :data="getRemarkInformation"
                   table-class="table"
@@ -109,7 +105,14 @@
                   sort-by="time"
                   sort-order="asc"
                 >
-                  <table-column :label="$t('profile.remark.user_property')">
+                  <table-column label="ID">
+                    <template slot-scope="row">
+                      <div class="user-profile-id">
+                        <span>{{ row.id }}</span>
+                      </div>
+                    </template>
+                  </table-column>
+                  <table-column label="变更内容">
                     <template slot-scope="row">
                       <div class="user-profile-name">
                         <span>{{ row.parsedInfo.type }}</span>
@@ -119,22 +122,20 @@
                   <table-column
                     :sortable="false"
                     :filterable="false"
-                    :label="$t('profile.remark.type')"
+                    label="类别"
                   >
                     <template>
-                      <div class="remark_type">
-                        {{ $t("profile.remark.update") }}
-                      </div>
+                      <div class="remark_type">更新</div>
                     </template>
                   </table-column>
-                  <table-column :label="$t('profile.remark.result')">
+                  <table-column label="结果">
                     <template slot-scope="row">
                       <div class="user-gender">
                         <span>{{ row.parsedInfo.result }}</span>
                       </div>
                     </template>
                   </table-column>
-                  <table-column :label="$t('profile.remark.time')">
+                  <table-column label="时间戳">
                     <template slot-scope="row">
                       <div class="user-email">
                         <span>{{ row.parsedInfo.time }}</span>
@@ -152,18 +153,18 @@
 </template>
 <script>
 import { TableComponent, TableColumn } from "vue-table-component";
+import fileDownload from "js-file-download";
 import UserInfo from "./UserInfo.vue";
 import QRGeneration from "./QRGeneration.vue";
 import { Tabs, Tab } from "vue-tabs-component";
 import Ls from "./../../../services/ls.js";
 export default {
-  props: ["toggle", "lang"],
+  props: ["toggle"],
   data() {
     return {
       user_id: "",
-      user_first_name: "",
-      user_last_name: "",
-      user_email: "",
+      name: "",
+      user_name: "",
       user_gender: "",
       user_role: "practitioner",
       user_id_number: "",
@@ -172,7 +173,10 @@ export default {
       user_region: "",
       user_picture: "/assets/img/default-user-avatar.jpg",
       user_health_status: "",
+      user_verification_status: "",
       user_validity_period: "",
+      user_remark_file: "",
+      user_comments: "",
       img: "",
       tooltipText: null,
       genders: [
@@ -186,12 +190,13 @@ export default {
       ],
       user_remark_information: "",
       current_user_role: "",
-      current_user_verification_status: "",
       current_user_id: "",
       qrSize: 500,
       qrText: null,
-      src2: "",
+      src2: "/assets/img/default-user-avatar.jpg",
       originalData: null,
+      keys: ["type", "result", "time"],
+      remark_file_path: "",
     };
   },
   components: {
@@ -208,30 +213,16 @@ export default {
       this.fetchUserInfo(id);
       this.$refs.remark_table.refresh();
     },
-    lang: function (newVal, oldVal) {
-      if (newVal == "en") {
-        this.setEn();
-      } else if (newVal == "ch") {
-        this.setCh();
-      }
-    },
   },
   created() {
     this.user_id = this.$route.params.id;
     this.current_user_id = Ls.get("user_id");
     this.current_user_role = Ls.get("Role");
-    this.user_picture = "/assets/img/default-user-avatar.jpg";
-    this.src2 = "/assets/img/default-user-avatar.jpg";
     this.fetchUserInfo(this.user_id);
-    if (this.$i18n.locale == "en") {
-      this.setEn();
-    } else if (this.$i18n.locale == "ch") {
-      this.setCh();
-    }
+    this.setCh();
     this.qrText = JSON.stringify({
-      first_name: this.user_first_name,
-      last_name: this.user_last_name,
-      email: this.user_email,
+      name: this.name,
+      username: this.user_name,
       role: this.user_role,
       id_number: this.user_id_number,
       serial_number: this.user_serial_number,
@@ -277,18 +268,34 @@ export default {
             if (item != "") {
               let parsedItem = JSON.parse(item);
               remarkInfos.push({
-                id: index,
+                id: index + 1,
                 parsedInfo: parsedItem,
               });
             }
           });
         }
-        remarkInfos = remarkInfos.filter(
+        let exist = this;
+        let return_data = [];
+        if (filter) {
+          remarkInfos.forEach((item, index) => {
+            exist.keys.forEach((key) => {
+              if (item.parsedInfo[key] != "") {
+                if (item.parsedInfo[key].toString().includes(filter)) {
+                  return_data.push(item);
+                }
+              }
+            });
+          });
+          return_data = exist.removeDuplicates(return_data);
+        } else {
+          return_data = remarkInfos;
+        }
+        return_data = return_data.filter(
           (item, index) => index >= (page - 1) * 10 && index < page * 10
         );
 
         return {
-          data: remarkInfos,
+          data: return_data,
           pagination: {
             totalPages: total_pages,
             currentPage: page,
@@ -299,48 +306,46 @@ export default {
         console.log("Error => ", error);
       }
     },
+    removeDuplicates(arr) {
+      return arr.filter((item, index) => arr.indexOf(item) === index);
+    },
     async fetchUserInfo(id) {
       try {
         const response = await axios.get(`/api/admin/user/get/${id}`);
-        this.user_first_name = response.data.user_info[0].first_name;
-        this.user_last_name = response.data.user_info[0].last_name;
-        this.user_email = response.data.user_info[0].email;
+        this.name = response.data.user_info[0].name;
+        this.user_name = response.data.user_info[0].username;
         this.user_gender = response.data.user_info[0].gender;
         this.user_role = response.data.user_info[0].role;
         this.user_id_number = response.data.user_info[0].id_number;
         this.user_serial_number = response.data.user_info[0].serial_number;
         this.user_company = response.data.user_info[0].company;
         this.user_region = response.data.user_info[0].region;
-        if (response.data.user_avatar.length !== 0) {
+        if (response.data.user_info[0].remark_file !== "...") {
+          this.remark_file_path = response.data.user_info[0].remark_file;
+        }
+        if (response.data.user_info[0].comments !== "...") {
+          this.user_comments = response.data.user_info[0].comments;
+        }
+        if (
+          response.data.user_avatar.length !== 0 &&
+          response.data.user_avatar[0] != ""
+        ) {
           this.user_picture = response.data.user_avatar[0];
           this.src2 = response.data.user_avatar[0];
+        } else {
+          this.user_picture = "/assets/img/default-user-avatar.jpg";
+          this.src2 = "/assets/img/default-user-avatar.jpg";
         }
         this.user_health_status = response.data.user_info[0].health_status;
-        if (id == Ls.get("user_id")) {
-          this.current_user_verification_status =
+        if (this.user_role == "practitioner") {
+          this.user_verification_status =
             response.data.user_info[0].verification_result;
-          if (this.current_user_verification_status == "nonactivated") {
-            if (this.$i18n.locale == "en") {
-              window.toastr["info"]("Your Identity has not been verified...");
-            } else if (this.$i18n.locale == "ch") {
-              window.toastr["info"]("您的身份尚未驗證...");
-            }
-          } else if (this.current_user_verification_status == "processing") {
-            if (this.$i18n.locale == "en") {
-              window.toastr["info"](
-                "Your Identity is on the processing of verification now..."
-              );
-            } else if (this.$i18n.locale == "ch") {
-              window.toastr["info"]("您的身份正在驗證中...");
-            }
-          } else if (this.current_user_verification_status == "activated") {
-            if (this.$i18n.locale == "en") {
-              window.toastr["info"](
-                "Your Identity has already been verified..."
-              );
-            } else if (this.$i18n.locale == "ch") {
-              window.toastr["info"]("您的身份已通過驗證...");
-            }
+          if (this.user_verification_status == "nonactivated") {
+            window.toastr["info"]("您的身份尚未验证...");
+          } else if (this.user_verification_status == "processing") {
+            window.toastr["info"]("您的身份正在驗證中...");
+          } else if (this.user_verification_status == "activated") {
+            window.toastr["info"]("您的身份已通過驗證...");
           }
         }
         this.user_validity_period = response.data.user_info[0].validity_period;
@@ -348,9 +353,8 @@ export default {
           response.data.user_info[0].remark_information;
 
         this.originalData = {
-          first_name: this.user_first_name,
-          last_name: this.user_last_name,
-          email: this.user_email,
+          name: this.name,
+          username: this.user_name,
           gender: this.user_gender,
           role: this.user_role,
           id_number: this.user_id_number,
@@ -393,14 +397,7 @@ export default {
               Ls.set("user_avatar", res.data.path);
               exist.setUserAvatar(res.data.path);
             }
-            if (exist.$i18n.locale == "en") {
-              window.toastr["success"](
-                "The user avatar has been changed!",
-                "Success"
-              );
-            } else if (exist.$i18n.locale == "ch") {
-              window.toastr["success"]("用戶頭像已更改！", "成功");
-            }
+            window.toastr["success"]("用户头像已更改！", "成功");
           });
       }
       this.img = "";
@@ -418,17 +415,13 @@ export default {
     onProduceQR(qrtext) {
       this.qrText = qrtext;
       let userInfo = JSON.parse(qrtext);
-      this.user_first_name = userInfo.first_name;
-      this.user_last_name = userInfo.last_name;
+      this.name = userInfo.name;
       this.user_serial_number = userInfo.serial_number;
       this.user_company = userInfo.company;
       this.user_validity_period = userInfo.validity_period;
     },
     startMemberVerification() {
-      this.$router.push("/admin/users/verification/" + this.current_user_id);
-    },
-    setEn() {
-      this.tooltipText = "Change your avatar";
+      this.$router.push("/admin/users/verification/" + this.user_id);
     },
     setCh() {
       this.tooltipText = "更改您的頭像";
@@ -446,6 +439,25 @@ export default {
     },
     async onUpdateKeepUserInfo(id) {
       this.$refs.remark_table.refresh();
+    },
+    downloadFile(url, filename) {
+      axios
+        .get(url, {
+          responseType: "blob",
+        })
+        .then((res) => {
+          fileDownload(res.data, filename);
+        });
+    },
+    onDownloadFile(fileName) {
+      this.downloadFile(
+        "http://43.135.48.73" + this.remark_file_path,
+        fileName
+      );
+    },
+    // "http://43.135.48.73"
+    onFileChanged(filePath) {
+      this.remark_file_path = filePath;
     },
   },
 };

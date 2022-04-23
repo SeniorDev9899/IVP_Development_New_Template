@@ -1,7 +1,7 @@
 <template>
   <div class="page-profile" :class="myClass">
     <div class="page-header">
-      <h3 class="page-title">{{ $t("verification.title") }}</h3>
+      <h3 class="page-title">验证门户</h3>
     </div>
     <div class="row">
       <div class="col-sm-12">
@@ -19,77 +19,54 @@
                   </div>
                 </div>
                 <div class="col-sm-9">
-                  <h2>{{ $t("verification.verification_info") }}</h2>
+                  <h2>验证信息</h2>
                   <div class="edit-personal-profile">
                     <b-form @submit.stop.prevent="onSubmit">
                       <div class="user-name-edit">
                         <b-form-group
-                          id="first-name-input-group"
-                          :label="$t('profile.first_name')"
-                          label-for="first-name-input"
+                          id="name-input-group"
+                          label="真实姓名"
+                          label-for="name-input"
                         >
                           <b-form-input
-                            id="first-name-input"
-                            name="first-name-input"
-                            v-model="user_first_name"
+                            id="name-input"
+                            name="name-input"
+                            v-model="name"
                             v-validate="{ required: true, min: 3 }"
-                            :state="validateState('first-name-input')"
-                            aria-describedby="first-name-input-live-feedback"
+                            :state="validateState('name-input')"
+                            aria-describedby="name-input-live-feedback"
                             data-vv-as="Name"
                           ></b-form-input>
 
                           <b-form-invalid-feedback
-                            id="first-name-input-live-feedback"
+                            id="name-input-live-feedback"
                             >{{
-                              veeErrors.first("first-name-input")
-                            }}</b-form-invalid-feedback
-                          >
-                        </b-form-group>
-
-                        <b-form-group
-                          id="last-name-input-group"
-                          :label="$t('profile.last_name')"
-                          label-for="last-name-input"
-                        >
-                          <b-form-input
-                            id="last-name-input"
-                            name="last-name-input"
-                            v-model="user_last_name"
-                            v-validate="{ required: true, min: 3 }"
-                            :state="validateState('last-name-input')"
-                            aria-describedby="last-name-input-live-feedback"
-                            data-vv-as="Name"
-                          ></b-form-input>
-
-                          <b-form-invalid-feedback
-                            id="last-name-input-live-feedback"
-                            >{{
-                              veeErrors.first("last-name-input")
+                              veeErrors.first("name-input")
                             }}</b-form-invalid-feedback
                           >
                         </b-form-group>
                       </div>
 
-                      <div class="email-edit">
+                      <div class="username-edit">
                         <b-form-group
-                          id="email-input-group"
-                          :label="$t('profile.email')"
-                          label-for="email-input"
+                          id="username-input-group"
+                          label="用户名"
+                          label-for="username-input"
                         >
                           <b-form-input
-                            id="email-input"
-                            name="email-input"
-                            v-model="user_email"
+                            id="username-input"
+                            name="username-input"
+                            v-model="username"
                             v-validate="{ required: true, min: 3 }"
-                            :state="validateState('email-input')"
-                            aria-describedby="email-input-live-feedback"
-                            data-vv-as="Name"
+                            :state="validateState('username-input')"
+                            aria-describedby="username-input-live-feedback"
+                            data-vv-as="User Name"
                           ></b-form-input>
 
                           <b-form-invalid-feedback
-                            id="email-input-live-feedback"
+                            id="username-input-live-feedback"
                             >{{
-                              veeErrors.first("email-input")
+                              veeErrors.first("username-input")
                             }}</b-form-invalid-feedback
                           >
                         </b-form-group>
@@ -98,7 +75,7 @@
                       <div class="id-serial-edit">
                         <b-form-group
                           id="id-input-group"
-                          :label="$t('profile.id_number')"
+                          label="身份证号码"
                           label-for="id-input"
                         >
                           <b-form-input
@@ -123,18 +100,19 @@
                       <div class="company-region-edit">
                         <b-form-group
                           id="company-input-group"
-                          :label="$t('profile.company')"
+                          label="公司"
                           label-for="company-input"
                         >
-                          <b-form-input
+                          <b-form-select
                             id="company-input"
                             name="company-input"
                             v-model="user_company"
                             v-validate="{ required: true }"
                             :state="validateState('company-input')"
                             aria-describedby="company-input-live-feedback"
+                            :options="companies"
                             data-vv-as="Company"
-                          ></b-form-input>
+                          ></b-form-select>
 
                           <b-form-invalid-feedback
                             id="company-input-live-feedback"
@@ -146,7 +124,7 @@
 
                         <b-form-group
                           id="region-input-group"
-                          :label="$t('profile.region')"
+                          label="地区"
                           label-for="region-input"
                           :class="
                             user_role != 'admin'
@@ -163,6 +141,7 @@
                             aria-describedby="region-input-live-feedback"
                             data-vv-as="Region"
                             :options="regions"
+                            @change="onUpdate('region', user_region)"
                           ></b-form-select>
 
                           <b-form-invalid-feedback
@@ -175,9 +154,9 @@
                       </div>
 
                       <div class="submit-reset">
-                        <b-button class="user-info-submit" type="submit">{{
-                          $t("verification.verify")
-                        }}</b-button>
+                        <b-button class="user-info-submit" type="submit"
+                          >核实</b-button
+                        >
                       </div>
                     </b-form>
                   </div>
@@ -201,9 +180,8 @@ export default {
   data() {
     return {
       user_id: "",
-      user_first_name: "",
-      user_last_name: "",
-      user_email: "",
+      name: "",
+      username: "",
       user_gender: "",
       user_role: "practitioner",
       user_id_number: "",
@@ -220,6 +198,7 @@ export default {
         { value: "admin", text: "System Admin" },
       ],
       regions: [],
+      companies: [],
     };
   },
   components: {
@@ -233,15 +212,15 @@ export default {
     this.user_picture = "/assets/img/default-user-avatar.jpg";
     try {
       const response = await axios.get(`/api/admin/user/get/${this.user_id}`);
-      this.user_first_name = response.data.user_info[0].first_name;
-      this.user_last_name = response.data.user_info[0].last_name;
-      this.user_email = response.data.user_info[0].email;
+      this.name = response.data.user_info[0].name;
+      this.username = response.data.user_info[0].username;
       this.user_gender = response.data.user_info[0].gender;
       this.user_role = response.data.user_info[0].role;
       this.user_id_number = response.data.user_info[0].id_number;
       this.user_serial_number = response.data.user_info[0].serial_number;
       this.user_company = response.data.user_info[0].company;
       this.user_region = response.data.user_info[0].region;
+      this.getCompaniesWithRegionName(this.user_region);
       if (response.data.user_avatar.length !== 0) {
         this.user_picture = response.data.user_avatar[0];
       }
@@ -252,11 +231,7 @@ export default {
     } catch (error) {
       let exist = this;
       if (error) {
-        if (exist.$i18n.locale == "en") {
-          window.toastr["error"]("There was an error", "Error");
-        } else if (exist.$i18n.locale == "ch") {
-          window.toastr["error"]("有一个错误", "错误");
-        }
+        window.toastr["error"]("有一个错误", "错误");
       }
     }
     this.getAllRegions().then((res) => {
@@ -301,9 +276,8 @@ export default {
       return null;
     },
     resetForm() {
-      this.user_first_name = "";
-      this.user_last_name = "";
-      this.user_email = "";
+      this.name = "";
+      this.username = "";
       this.user_gender = "male";
       this.user_role = "practitioner";
       this.user_id_number = "...";
@@ -324,9 +298,8 @@ export default {
         }
 
         let formData = {
-          first_name: this.user_first_name,
-          last_name: this.user_last_name,
-          email: this.user_email,
+          name: this.name,
+          username: this.username,
           role: this.user_role,
           gender: this.user_gender,
           id_number: this.user_id_number,
@@ -341,7 +314,7 @@ export default {
         //   .then(function (res) {
         //     Ls.set("First Name", res.data[0].first_name);
         //     Ls.set("Last Name", res.data[0].last_name);
-        //     Ls.set("Email", res.data[0].email);
+        //     Ls.set("User Name", res.data[0].username);
         //     Ls.set("Role", res.data[0].role);
         //     Ls.set("Gender", res.data[0].gender);
         //     window.toastr["success"](
@@ -349,15 +322,39 @@ export default {
         //       "Success"
         //     );
         //   });
-        if (this.$i18n.locale == "en") {
-          window.toastr["success"](
-            "Your personal information has been verified successfully!",
-            "Success"
-          );
-        } else if (this.$i18n.locale == "ch") {
-          window.toastr["success"]("您的个人信息已成功验证！", "成功");
-        }
+        window.toastr["success"]("您的个人信息已成功验证！", "成功");
       });
+    },
+    onUpdate(type, value) {
+      if (type == "region") {
+        this.getCompaniesWithRegionName(value);
+      }
+    },
+    async getCompaniesWithRegionName(region_name) {
+      let info = {
+        region_name: region_name,
+      };
+      let response = await axios.post(
+        "/api/admin/region/companieswithname",
+        info
+      );
+      let length = response.data.split(" / ").length;
+      let companies = response.data.split(" / ").slice(1, length);
+      if (companies.length != 0) {
+        this.companies = companies.map((item) => {
+          return {
+            value: item,
+            text: item,
+          };
+        });
+      } else if (companies.length == 0) {
+        this.companies = [
+          {
+            value: "...",
+            text: "该地区没有公司",
+          },
+        ];
+      }
     },
   },
 };
@@ -396,7 +393,6 @@ export default {
   width: 100%;
   height: 100%;
 }
-.user-name-edit,
 .id-serial-edit,
 .user-gender-role-edit,
 .company-region-edit {
@@ -405,8 +401,6 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.user-name-edit #first-name-input-group,
-.user-name-edit #last-name-input-group,
 .user-gender-role-edit #gender-input-group,
 .user-gender-role-edit #role-input-group,
 .id-serial-edit #serial-input-group,

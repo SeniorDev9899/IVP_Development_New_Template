@@ -51,17 +51,6 @@
           </div>
         </div>
         <div class="d-flex order-lg-2 ml-auto">
-          <div class="language-select">
-            <vue-country-code
-              @onSelect="onSelect"
-              :dropdownOptions="{
-                disabledDialCode: true,
-              }"
-              :onlyCountries="['cn', 'us']"
-              :defaultCountry="getCountry"
-            >
-            </vue-country-code>
-          </div>
           <!-- <div class="dropdown header-notify" @click="toggleClassShow">
             <a class="nav-link icon p-0" data-toggle="dropdown">
               <svg
@@ -224,7 +213,7 @@
                 <a
                   href="#"
                   class="dropdown-item text-center user pb-0 font-weight-bold"
-                  >{{ user_first_name }} {{ user_last_name }}</a
+                  >{{ name }}</a
                 >
                 <span class="text-center user-semi-title">{{ role_val }}</span>
                 <div class="dropdown-divider"></div>
@@ -251,9 +240,7 @@
                       d="M12 14c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm-6 4c.22-.72 3.31-2 6-2 2.7 0 5.8 1.29 6 2H6zm6-6c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"
                     />
                   </svg>
-                  <div style="color: #46474e; font-weight: 600">
-                    {{ $t("header.user.profile") }}
-                  </div>
+                  <div style="color: #46474e; font-weight: 600">个人信息</div>
                 </div>
               </span>
               <!-- <a class="dropdown-item d-flex" href="#">
@@ -316,9 +303,7 @@
                       d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H8.9V6zM18 20H6V10h12v10zm-7-1h2v-3h3v-2h-3v-3h-2v3H8v2h3z"
                     />
                   </svg>
-                  <div style="color: #46474e; font-weight: 600">
-                    {{ $t("header.user.logout") }}
-                  </div>
+                  <div style="color: #46474e; font-weight: 600">登出</div>
                 </div>
               </span>
             </div>
@@ -329,7 +314,7 @@
 
     <!-- Email Verification Notification  -->
 
-    <div
+    <!-- <div
       class="email_verification_notification"
       :class="notificationStatus == true ? 'verified' : 'not_verified'"
     >
@@ -347,7 +332,7 @@
       >
         <button @click="closeNotification">X</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- Email Verification Notification  -->
   </div>
@@ -364,11 +349,9 @@ export default {
       role_val: "",
       user_id: "",
       user_picture: "/assets/img/default-user-avatar.jpg",
-      user_first_name: "",
-      user_first_name: "",
-      email_verification_status: null,
-      notificationStatus: false,
-      lang_set: "",
+      name: "",
+      // email_verification_status: null,
+      // notificationStatus: false,
     };
   },
   watch: {
@@ -380,33 +363,27 @@ export default {
     ClipLoader,
   },
   async created() {
-    this.lang_set = this.$i18n.locale;
     this.user_role = Ls.get("Role");
     this.user_id = Ls.get("user_id");
-    this.user_first_name = Ls.get("First Name");
-    this.user_last_name = Ls.get("Last Name");
+    this.name = Ls.get("Name");
     this.user_picture = "/assets/img/default-user-avatar.jpg";
     try {
       const response = await axios.get(
         `/api/admin/user/avatar/get/${this.user_id}`
       );
-      if (response.data.length !== 0) {
+      if (response.data.length !== 0 && response.data != "") {
         Ls.set("user_avatar", response.data);
         this.user_picture = Ls.get("user_avatar");
         this.$emit("setUserAvatar", this.user_picture);
       }
     } catch (err) {
-      if (this.$i18n.locale == "en") {
-        window.toastr["error"]("There was an error", "Error");
-      } else if (this.$i18n.locale == "ch") {
-        window.toastr["error"]("有一個錯誤", "錯誤");
-      }
+      window.toastr["error"]("有一個错误", "错误");
     }
-    this.email_verification_status = Ls.get("email_verification_status");
+    // this.email_verification_status = Ls.get("email_verification_status");
     this.setMemberProperty();
-    setTimeout(() => {
-      this.notificationStatus = true;
-    }, 3000);
+    // setTimeout(() => {
+    //   this.notificationStatus = true;
+    // }, 3000);
     let exist = this;
     window.addEventListener("mousedown", function (event) {
       let header_profile = document.getElementById("header_profile");
@@ -445,98 +422,66 @@ export default {
       }
     });
   },
-  computed: {
-    getCountry() {
-      return Ls.get("countryLang");
-    },
-  },
   methods: {
     toggleSidebar(e) {
       this.$emit("occurToggle", e);
     },
     logout() {
-      Auth.logout(this.$i18n.locale).then(() => {
+      Auth.logout().then(() => {
         this.$router.replace("/login");
       });
     },
     navigateToProfile() {
       this.$router.push("/admin/users/profile/" + this.user_id);
     },
-    onSelect({ name, iso2, dialCode }) {
-      if (iso2.toString() == "US") {
-        this.$i18n.locale = "en";
-        Ls.set("countryLang", iso2.toString());
-        this.lang_set = this.$i18n.locale;
-        this.$emit("changeLang", this.lang_set);
-        this.setMemberProperty();
-      } else if (iso2.toString() == "CN") {
-        this.$i18n.locale = "ch";
-        this.lang_set = this.$i18n.locale;
-        Ls.set("countryLang", iso2.toString());
-        this.$emit("changeLang", this.lang_set);
-        this.setMemberProperty();
-      }
-    },
-    closeNotification() {
-      this.notificationStatus = true;
-    },
-    resendEmail() {
-      let resendEmailData = {
-        first_name: Ls.get("First Name"),
-        last_name: Ls.get("Last Name"),
-        email: Ls.get("Email"),
-      };
-      let locale = Ls.get("countryLang");
-      Auth.resendEmailVerification(resendEmailData, locale).then((res) => {
-        var today = new Date();
-        var date =
-          today.getFullYear() +
-          "-" +
-          (today.getMonth() + 1) +
-          "-" +
-          today.getDate();
-        var time =
-          today.getHours() +
-          ":" +
-          today.getMinutes() +
-          ":" +
-          today.getSeconds();
-        let info = {
-          time: date + " " + time,
-          type: "email_verification",
-          result: true,
-        };
-        let keepUserInfo = JSON.stringify(info);
-        Auth.keepRemarkInformation(this.user_id, {
-          info: keepUserInfo,
-        }).then((res) => {});
-      });
-    },
-    toggleClassShow() {
-      this.$utils.toggleClassShow();
-    },
+    // closeNotification() {
+    //   this.notificationStatus = true;
+    // },
+    // resendEmail() {
+    //   let resendEmailData = {
+    //     first_name: Ls.get("First Name"),
+    //     last_name: Ls.get("Last Name"),
+    //     email: Ls.get("Email"),
+    //   };
+    //   let locale = Ls.get("countryLang");
+    //   Auth.resendEmailVerification(resendEmailData, locale).then((res) => {
+    //     var today = new Date();
+    //     var date =
+    //       today.getFullYear() +
+    //       "-" +
+    //       (today.getMonth() + 1) +
+    //       "-" +
+    //       today.getDate();
+    //     var time =
+    //       today.getHours() +
+    //       ":" +
+    //       today.getMinutes() +
+    //       ":" +
+    //       today.getSeconds();
+    //     let info = {
+    //       time: date + " " + time,
+    //       type: "email_verification",
+    //       result: true,
+    //     };
+    //     let keepUserInfo = JSON.stringify(info);
+    //     Auth.keepRemarkInformation(this.user_id, {
+    //       info: keepUserInfo,
+    //     }).then((res) => {});
+    //   });
+    // },
+    // toggleClassShow() {
+    //   this.$utils.toggleClassShow();
+    // },
     toggleClassShowProfile() {
       this.$utils.toggleClassShowProfile();
     },
     setMemberProperty() {
       if (this.user_role == "admin") {
-        if (this.lang_set == "en") {
-          this.role_val = "Administrator";
-        } else if (this.lang_set == "ch") {
-          this.role_val = "行政人员";
-        }
+        this.role_val = "系统总管理员";
       } else if (this.user_role == "regional_admin") {
-        if (this.lang_set == "en") {
-          this.role_val = "Regional Administrator";
-        } else if (this.lang_set == "ch") {
-          this.role_val = "区域管理员";
-        }
+        this.role_val = "区域管理员";
       } else {
-        if (this.lang_set == "en") {
-          this.role_val = "Practitioner";
-        } else {
-          this.role_val = "从业者";
-        }
+        this.role_val = "从业者";
       }
     },
     handleFocusOut() {
@@ -579,7 +524,7 @@ export default {
   max-height: 100%;
   height: 36px;
 }
-.email_verification_notification {
+/* .email_verification_notification {
   text-align: center;
   z-index: 2;
   width: 100%;
@@ -590,7 +535,7 @@ export default {
   align-items: center;
   justify-content: center;
   transition: ease 0.5s all;
-}
+} */
 .success {
   background-color: rgb(162 249 191);
   width: 100%;
@@ -607,17 +552,17 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.not_verified {
+/* .not_verified {
   height: 60px;
-}
-.verified {
+} */
+/* .verified {
   height: 0px;
-}
-.close_notification {
+} */
+/* .close_notification {
   position: absolute !important;
   right: 15px;
-}
-.close_notification button {
+} */
+/* .close_notification button {
   background-color: transparent !important;
   border: 1px solid #878282 !important;
   border-radius: 10px !important;
@@ -626,9 +571,9 @@ export default {
 }
 .close_notification button:hover {
   color: #140a0a;
-  border: 1px solid #140a0a !important;
-}
-.header-notify {
+  border: 1px solid #140a0a !important; 
+} */
+/* .header-notify {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -644,18 +589,18 @@ export default {
 }
 .header-notify.show .dropdown-menu[x-placement^="bottom"] {
   left: -225px !important;
-}
+}  */
 .profile-dropdown.show .dropdown-menu[x-placement^="bottom"] {
   left: -100px !important;
 }
 .header .dropdown-menu.show {
   z-index: 5;
 }
-.language-select {
+/* .language-select {
   position: absolute;
   top: 15px;
   right: 135px !important;
-}
+} */
 .dropdown-item {
   cursor: pointer;
 }
@@ -676,7 +621,7 @@ export default {
 .user-avatar .dropdown-activator {
   height: 100% !important;
 }
-#country-select {
+/* #country-select {
   position: relative;
   left: 0px !important;
   top: 0px !important;
@@ -693,8 +638,8 @@ export default {
 #country-select .dropdown-list {
   width: 200px !important;
   z-index: 3;
-}
-.resend_email {
+} */
+/* .resend_email {
   background-color: rgb(255 222 0);
   border: rgb(255 222 0) 1px solid;
   border-radius: 15px;
@@ -705,8 +650,8 @@ export default {
 .resend_email:hover {
   background-color: rgb(253 230 76);
   border: rgb(253 230 76) 1px solid;
-}
-.vue-country-select {
+} */
+/* .vue-country-select {
   position: relative;
   top: 12px !important;
   border: 1px !important;
@@ -729,5 +674,5 @@ export default {
 }
 .vue-country-select .dropdown-list {
   z-index: 6 !important;
-}
+} */
 </style>

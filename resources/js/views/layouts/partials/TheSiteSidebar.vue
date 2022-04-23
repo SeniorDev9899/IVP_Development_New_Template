@@ -23,7 +23,7 @@
             class="header-brand-img darkmobile-logo"
             alt="Dashtic logo"
           />
-          <h4 class="main-brand_title desktop-lgo">{{ $t("title") }}</h4>
+          <h4 class="main-brand_title desktop-lgo">管理平台</h4>
         </span>
       </div>
     </div>
@@ -39,7 +39,7 @@
           </div>
           <div class="user-info">
             <h5 class="mb-1 font-weight-bold">
-              {{ user_first_name }} {{ user_last_name }}
+              {{ name }}
             </h5>
             <span class="text-muted app-sidebar__user-name text-sm">{{
               role_val
@@ -73,9 +73,7 @@
                     d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
                   ></path>
                   <polyline points="9 22 9 12 15 12 15 22"></polyline></svg
-                ><span class="side-menu__label">{{
-                  $t("dashboard.dashboard")
-                }}</span>
+                ><span class="side-menu__label">仪表盘</span>
               </router-link>
             </v-collapse-item>
 
@@ -97,9 +95,7 @@
                   <circle cx="9" cy="7" r="4"></circle>
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg
-                ><span class="side-menu__label">{{
-                  $t("dashboard.staff_man")
-                }}</span>
+                ><span class="side-menu__label">员工管理</span>
                 <span class="icon-fa arrow icon-fa-fw side-menu__label" />
               </a>
               <router-link
@@ -107,31 +103,22 @@
                 to="/admin/users/all"
                 class="side-menu__item sub_menu_item side-menu__label"
               >
-                <span
-                  ><i class="fa-solid fa-angles-right"></i
-                  >{{ $t("dashboard.all_users") }}</span
-                >
+                <span><i class="fa-solid fa-angles-right"></i>所有用户</span>
               </router-link>
 
               <router-link
                 :to="'/admin/users/profile/' + user_id"
                 class="side-menu__item sub_menu_item side-menu__label"
               >
-                <span
-                  ><i class="fa-solid fa-angles-right"></i
-                  >{{ $t("dashboard.profile") }}</span
-                >
+                <span><i class="fa-solid fa-angles-right"></i>个人信息</span>
               </router-link>
 
-              <router-link
+              <!-- <router-link
                 :to="'/admin/users/verification/' + user_id"
                 class="side-menu__item sub_menu_item side-menu__label"
               >
-                <span
-                  ><i class="fa-solid fa-angles-right"></i
-                  >{{ $t("dashboard.verification") }}</span
-                >
-              </router-link>
+                <span><i class="fa-solid fa-angles-right"></i>身份验证</span>
+              </router-link> -->
             </v-collapse-item>
 
             <v-collapse-item active-url="/admin/settings">
@@ -157,9 +144,7 @@
                   <line x1="1" y1="14" x2="7" y2="14"></line>
                   <line x1="9" y1="8" x2="15" y2="8"></line>
                   <line x1="17" y1="16" x2="23" y2="16"></line></svg
-                ><span class="side-menu__label">{{
-                  $t("dashboard.system_man")
-                }}</span>
+                ><span class="side-menu__label">系统管理</span>
                 <span class="icon-fa arrow icon-fa-fw side-menu__label" />
               </a>
               <router-link
@@ -168,18 +153,37 @@
                 class="side-menu__item sub_menu_item side-menu__label"
               >
                 <span style="left: 20px"
-                  ><i class="fa-solid fa-angles-right"></i
-                  >{{ $t("dashboard.new_user") }}</span
+                  ><i class="fa-solid fa-angles-right"></i>新增用户</span
                 >
               </router-link>
 
               <router-link
+                v-if="user_role === 'admin' || user_role === 'regional_admin'"
+                to="/admin/new_admin_user"
+                class="side-menu__item sub_menu_item side-menu__label"
+              >
+                <span style="left: 20px"
+                  ><i class="fa-solid fa-angles-right"></i>新增管理员</span
+                >
+              </router-link>
+
+              <router-link
+                v-if="user_role === 'admin'"
                 to="/admin/region_management"
                 class="side-menu__item sub_menu_item side-menu__label"
               >
                 <span style="left: 15px"
-                  ><i class="fa-solid fa-angles-right"></i
-                  >{{ $t("dashboard.regional_man") }}</span
+                  ><i class="fa-solid fa-angles-right"></i>区域管理</span
+                >
+              </router-link>
+
+              <router-link
+                v-if="user_role === 'regional_admin'"
+                :to="'/admin/regions/' + region_id"
+                class="side-menu__item sub_menu_item side-menu__label"
+              >
+                <span style="left: 15px"
+                  ><i class="fa-solid fa-angles-right"></i>区域管理</span
                 >
               </router-link>
 
@@ -203,14 +207,12 @@
 <script>
 import Ls from "./../../../services/ls.js";
 export default {
-  props: ["lang", "user_avatar"],
+  props: ["user_avatar"],
   watch: {
-    lang: function (newVal, oldVal) {
-      this.lang_set = newVal;
-      this.setMemberProperty();
-    },
     user_avatar: function (newVal, oldVal) {
-      this.avatar = newVal;
+      if (newVal != "") {
+        this.avatar = newVal;
+      }
     },
   },
   data() {
@@ -220,39 +222,30 @@ export default {
       user_role: "",
       role_val: "",
       avatar: "",
-      user_first_name: "",
-      user_last_name: "",
+      name: "",
+      region_id: "",
     };
   },
   created() {
-    this.lang_set = this.lang;
     this.user_id = Ls.get("user_id");
     this.user_role = Ls.get("Role");
-    this.avatar = this.user_avatar;
-    this.user_first_name = Ls.get("First Name");
-    this.user_last_name = Ls.get("Last Name");
+    if (this.user_avatar != "") {
+      this.avatar = this.user_avatar;
+    } else {
+      this.avatar = "/assets/img/default-user-avatar.jpg";
+    }
+    this.name = Ls.get("Name");
+    this.region_id = Ls.get("User Region ID");
     this.setMemberProperty();
   },
   methods: {
     setMemberProperty() {
       if (this.user_role == "admin") {
-        if (this.lang_set == "en") {
-          this.role_val = "Administrator";
-        } else if (this.lang_set == "ch") {
-          this.role_val = "行政人员";
-        }
+        this.role_val = "系统总管理员";
       } else if (this.user_role == "regional_admin") {
-        if (this.lang_set == "en") {
-          this.role_val = "Regional Administrator";
-        } else if (this.lang_set == "ch") {
-          this.role_val = "区域管理员";
-        }
+        this.role_val = "区域管理员";
       } else {
-        if (this.lang_set == "en") {
-          this.role_val = "Practitioner";
-        } else {
-          this.role_val = "从业者";
-        }
+        this.role_val = "从业者";
       }
     },
   },

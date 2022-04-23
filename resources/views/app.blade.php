@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Identity Verification Portal</title>
+    <title>养老协会从业人员身份验证管理平台</title>
     <link href='https://fonts.googleapis.com/css?family=Roboto:500,400,300,700' rel='stylesheet' type='text/css'>
     <script src="/assets/js/core/pace.js"></script>
     <link href="{{mix('/assets/css/laraspace.css')}}" rel="stylesheet" type="text/css">

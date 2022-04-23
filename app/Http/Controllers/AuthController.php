@@ -6,23 +6,21 @@ use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Hash;
 use App\User;
+use App\Regions;
 use SendGrid;
 
 class AuthController extends Controller
 {
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required',            
+            'name' => 'required',        
             'gender' => 'required',
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
         $user = User::create([
-            'first_name' => $request->first_name, 
-            'last_name' => $request->last_name,
+            'name' => $request->name, 
             'email' => $request->email, 
             'password' => Hash::make($request->password),
             'gender' => $request->gender, 
@@ -34,7 +32,7 @@ class AuthController extends Controller
             new \SendGrid\Mail\TemplateId( env('EMAIL_TEMPLATE_ID') )
         );
         $email->addDynamicTemplateDatas( [
-            'name'     => $request->first_name . "" . $request->last_name,
+            'name'     => $request->name,
             'link' => env('DEVELOP_MODE') . "login?email=" . $request->email . "&email_verification=true"
         ]);
 
@@ -44,8 +42,7 @@ class AuthController extends Controller
         if(!$user->role)
         {               
             return response()->json([
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
+                'name' => $user->name,
                 'gender' => $user->gender,
                 'email' => $user->email,
                 'role' => 'practitioner',
@@ -53,8 +50,7 @@ class AuthController extends Controller
             ]);
         } else {
             return response()->json([
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
+                'name' => $user->name,
                 'gender' => $user->gender,
                 'email' => $user->email,
                 'role' => $user->role,
@@ -72,7 +68,7 @@ class AuthController extends Controller
             new \SendGrid\Mail\TemplateId( env('EMAIL_TEMPLATE_ID') )
         );
         $email->addDynamicTemplateDatas( [
-            'name'     => $request->first_name . " " . $request->last_name,
+            'name'     => $request->name,
             'link' => env('DEVELOP_MODE') . "login?email=" . $request->email . "&email_verification=true"
         ]);
 
@@ -116,10 +112,9 @@ class AuthController extends Controller
 
     public function newMemberAdd(Request $request) {
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required',            
+            'name' => 'required',          
             'gender' => 'required',
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required',
             'role' => 'required',
             'region' => 'required',
@@ -131,9 +126,8 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'first_name' => $request->first_name, 
-            'last_name' => $request->last_name,
-            'email' => $request->email, 
+            'name' => $request->name, 
+            'username' => $request->username, 
             'password' => Hash::make($request->password),
             'gender' => $request->gender, 
             'role' => $request->role,
@@ -147,10 +141,9 @@ class AuthController extends Controller
         return $user;
     }
 
-    public function authenticate(Request $request)
-    {
+    public function authenticate(Request $request){
         // grab credentials from the request
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('username', 'password');
         try {
             // attempt to verify the credentials and create a token for the user
             if (! $token = JWTAuth::attempt($credentials)) {
@@ -161,17 +154,17 @@ class AuthController extends Controller
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
 
-        $user = User::where('email',$request->email)->get();
-
+        $user = User::where('username',$request->username)->get();
+        $userRegionID = Regions::where('name', $user[0]->region)->pluck('id')->first();
         // all good so return the token
         return response()->json([
             'token' => compact('token'),
-            'user_data' => $user
+            'user_data' => $user,
+            'user_region_id' => $userRegionID
         ]);
     }
 
-    public function check()
-    {
+    public function check(){
         try {
             JWTAuth::parseToken()->authenticate();
         } catch (JWTException $e) {
@@ -186,8 +179,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout()
-    {
+    public function logout(){
         try {
             $token = JWTAuth::getToken();
 

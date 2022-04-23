@@ -1,36 +1,15 @@
 <template>
-  <div
-    id="all-users"
-    :class="
-      user_role == 'practitioner' || toggle == true
-        ? 'role_practitioner'
-        : 'main-content'
-    "
-  >
+  <div id="all-users" :class="myClass">
     <!-- Users Page Header  -->
 
-    <div class="page-header">
-      <h3 class="page-title">{{ $t("users.users") }}</h3>
+    <div class="page-header" v-if="region_name == ''">
+      <h3 class="page-title">用户资料</h3>
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">{{ $t("users.home") }}</a>
+          <a href="#">员工管理</a>
         </li>
-        <li class="breadcrumb-item active">{{ $t("users.users") }}</li>
+        <li class="breadcrumb-item active">用户资料</li>
       </ol>
-
-      <!-- User Actions for Add New Member, Add New Role, Delete All Users -->
-
-      <div class="page-actions">
-        <!-- Action for Add New Region Name  -->
-
-        <!-- Action for Add New Region Name  -->
-
-        <!-- <button class="btn btn-danger" @click="deleteAllUser">
-          <i class="icon-fa icon-fa-trash" /> {{ $t("users.delete") }}
-        </button> -->
-      </div>
-
-      <!-- Users Actions for Add New Member, Add New Role, Delete All Users  -->
     </div>
 
     <!-- Users Page Header  -->
@@ -39,7 +18,8 @@
       <div class="col-sm-12">
         <div class="card">
           <div class="card-header">
-            <h6>{{ $t("users.all_users") }}</h6>
+            <h6 v-if="region_name == ''">所有用户</h6>
+            <h6 v-else>所有区域管理员</h6>
             <div class="card-actions" />
           </div>
           <div class="card-body">
@@ -94,27 +74,23 @@
             <!-- Users Query Conditions Group  -->
 
             <table-component
-              :data="getUsers"
+              :data="region_name == '' ? getUsers : getAllRegionalAdmins"
               sort-by="full_name"
               sort-order="desc"
               table-class="table"
               ref="table"
             >
-              <table-column
-                show="full_name"
-                :label="$t('users.table.full_name')"
-              >
+              <table-column show="full_name" label="全名">
                 <template slot-scope="row">
                   <div class="user-profile-name">
-                    <span>{{ row.first_name }}</span>
-                    <span>{{ row.last_name }}</span>
+                    <span>{{ row.name }}</span>
                   </div>
                 </template>
               </table-column>
               <table-column
                 :sortable="false"
                 :filterable="false"
-                :label="$t('users.table.user_avatar')"
+                label="用户头像"
               >
                 <template slot-scope="row">
                   <div class="user-profile-avatar">
@@ -122,23 +98,19 @@
                   </div>
                 </template>
               </table-column>
-              <table-column :label="$t('users.table.gender')">
+              <table-column label="性別">
                 <template slot-scope="row">
                   <div class="user-gender">
-                    <span v-if="row.gender == 'male'">{{
-                      $t("users.male")
-                    }}</span>
-                    <span v-if="row.gender == 'female'">{{
-                      $t("users.female")
-                    }}</span>
+                    <span v-if="row.gender == 'male'">男</span>
+                    <span v-if="row.gender == 'female'">女</span>
                   </div>
                 </template>
               </table-column>
-              <table-column :label="$t('users.table.email')">
+              <table-column label="用户名">
                 <template slot-scope="row">
-                  <div class="user-email">
-                    <div v-if="row.email_verification_status == 0">
-                      <span>{{ row.email }}</span
+                  <div class="user-name">
+                    <!-- <div v-if="row.email_verification_status == 0">
+                      <span>{{ row.username }}</span
                       ><i
                         class="fa fa-exclamation-triangle"
                         aria-hidden="true"
@@ -152,72 +124,48 @@
                           classes: ['info'],
                         }"
                       ></i>
-                    </div>
-                    <div v-if="row.email_verification_status == 1">
-                      {{ row.email }}
-                    </div>
+                    </div> -->
+                    <!-- <div v-if="row.email_verification_status == 1"> -->
+                    {{ row.username }}
+                    <!-- </div> -->
                   </div>
                 </template>
               </table-column>
-              <table-column :label="$t('users.table.role')">
+              <table-column label="角色">
                 <template slot-scope="row">
                   <div class="user-role">
-                    <span v-if="row.role == 'practitioner'">{{
-                      $t("users.practitioner")
-                    }}</span>
-                    <span v-if="row.role == 'regional_admin'">{{
-                      $t("users.regional_admin")
-                    }}</span>
-                    <span v-if="row.role == 'admin'">{{
-                      $t("users.admin")
-                    }}</span>
+                    <span v-if="row.role == 'practitioner'">从业者</span>
+                    <span v-if="row.role == 'regional_admin'">区域管理员</span>
+                    <span v-if="row.role == 'admin'">系統管理員</span>
                   </div>
                 </template>
               </table-column>
-              <table-column
-                show="id_number"
-                :label="$t('users.table.id_number')"
-              />
-              <table-column
-                show="serial_number"
-                :label="$t('users.table.serial_number')"
-              />
-              <table-column
-                show="validity_period"
-                :label="$t('users.table.validity_period')"
-              />
-              <table-column show="company" :label="$t('users.table.company')" />
-              <table-column show="region" :label="$t('users.table.region')" />
-              <table-column
-                show="verification_result"
-                :label="$t('users.table.verification_result')"
-              >
+              <table-column show="id_number" label="身份证号码" />
+              <table-column show="serial_number" label="序列号" />
+              <table-column show="validity_period" label="有效期" />
+              <table-column show="company" label="公司" />
+              <table-column show="region" label="地区" />
+              <table-column show="verification_result" label="验证结果">
                 <template slot-scope="row">
                   <div class="user-verification-status">
-                    <span v-if="row.verification_result == 'nonactivated'">{{
-                      $t("users.nonactivated")
-                    }}</span>
-                    <span v-if="row.verification_result == 'processing'">{{
-                      $t("users.processing")
-                    }}</span>
-                    <span v-if="row.verification_result == 'activated'">{{
-                      $t("users.activated")
-                    }}</span>
+                    <span v-if="row.verification_result == 'nonactivated'"
+                      >沒有激活</span
+                    >
+                    <span v-if="row.verification_result == 'processing'"
+                      >加工</span
+                    >
+                    <span v-if="row.verification_result == 'activated'"
+                      >活性</span
+                    >
                   </div>
                 </template>
               </table-column>
-              <table-column :label="$t('users.table.health_status')">
+              <table-column label="健康状况">
                 <template slot-scope="row">
                   <div class="user-health-status">
-                    <span v-if="row.health_status == 'bad'">{{
-                      $t("users.bad")
-                    }}</span>
-                    <span v-if="row.health_status == 'normal'">{{
-                      $t("users.normal")
-                    }}</span>
-                    <span v-if="row.health_status == 'good'">{{
-                      $t("users.good")
-                    }}</span>
+                    <span v-if="row.health_status == 'bad'">壞的</span>
+                    <span v-if="row.health_status == 'normal'">普通的</span>
+                    <span v-if="row.health_status == 'good'">好的</span>
                   </div>
                 </template>
               </table-column>
@@ -227,17 +175,17 @@
                     <router-link :to="'/admin/users/profile/' + row.id">
                       <a class="btn btn-default btn-sm">
                         <i class="icon-fa icon-fa-edit" />
-                        {{ $t("users.table.action.edit") }}
+                        編輯
                       </a>
                     </router-link>
                     <a
-                      class="btn btn-default btn-sm"
+                      class="btn btn-default btn-sm delete_color"
                       data-delete
                       data-confirmation="notie"
                       @click="deleteUser(row.id)"
                     >
                       <i class="icon-fa icon-fa-trash" />
-                      {{ $t("users.table.action.delete") }}
+                      刪除
                     </a>
                   </div>
                 </template>
@@ -255,23 +203,20 @@ import { TableComponent, TableColumn } from "vue-table-component";
 import Ls from "./../../../services/ls.js";
 import Auth from "./../../../services/auth.js";
 export default {
-  props: ["toggle", "lang", "emittedRegionAdd"],
+  props: ["toggle", "emittedRegionAdd", "region_name"],
   components: {
     TableComponent,
     TableColumn,
   },
   data() {
     return {
-      page_number: "",
-      users: [],
       user_role: "",
       user_id: "",
       user_region: "",
       save: false,
       keys: [
-        "first_name",
-        "last_name",
-        "email",
+        "name",
+        "username",
         "role",
         "gender",
         "id_number",
@@ -298,26 +243,25 @@ export default {
     };
   },
   watch: {
-    lang: function (newVal, oldVal) {
-      let role = Ls.get("Role");
-      let region_name = Ls.get("Region Name");
-      if (newVal == "en") {
-        let lang = "en";
-        this.setRegionWithLangRole(lang, role, region_name);
-      } else if (newVal == "ch") {
-        let lang = "ch";
-        this.setRegionWithLangRole(lang, role, region_name);
-      }
-    },
     emittedRegionAdd: function (newVal, oldVal) {
       if (newVal != "") {
         let parsedObject = JSON.parse(newVal);
-        if (parsedObject.lang == "en") {
-          let lang = "en";
-          let role = parsedObject.role;
-          let regionName = Ls.get("Region Name");
-          this.setRegionWithLangRole(lang, role, regionName);
+        let role = parsedObject.role;
+        let regionName = Ls.get("Region Name");
+        this.setRegionWithLangRole(role, regionName);
+      }
+    },
+  },
+  computed: {
+    myClass() {
+      if (this.region_name == "") {
+        if (this.user_role == "practitioner" || this.toggle == true) {
+          return "role_practitioner";
+        } else {
+          return "main-content";
         }
+      } else {
+        return "";
       }
     },
   },
@@ -325,16 +269,10 @@ export default {
     this.user_id = Ls.get("user_id");
     this.user_role = Ls.get("Role");
     this.user_region = Ls.get("Region Name");
-    if (this.$i18n.locale == "en") {
-      let lang = "en";
-      this.setRegionWithLangRole(lang, this.user_role, this.user_region);
-    } else if (this.$i18n.locale == "ch") {
-      let lang = "ch";
-      this.setRegionWithLangRole(lang, this.user_role, this.user_region);
-    }
+    this.setRegionWithLangRole(this.user_role, this.user_region);
   },
   methods: {
-    setRegionWithLangRole(lang, role, region = "") {
+    setRegionWithLangRole(role, region = "") {
       this.getAllRegions().then((res) => {
         if (role == "admin") {
           this.availableRegions = res;
@@ -342,11 +280,7 @@ export default {
           this.availableRegions = res.filter((item) => item.name == region);
         }
         if (this.availableRegions.length != 0) {
-          if (lang == "en") {
-            this.setEn();
-          } else if (lang == "ch") {
-            this.setCh();
-          }
+          this.setCh();
         }
       });
     },
@@ -356,8 +290,129 @@ export default {
       });
       return regions;
     },
+    async getAllRegionalAdmins({ page, filter, sort }) {
+      this.user_region = this.region_name;
+      let response = await axios.get(`/api/admin/users/get?page=${page}`);
+      response = response.data.filter(
+        (item) =>
+          item.role == "regional_admin" && item.region == this.region_name
+      );
+      let avatarResponse = await axios.get("/api/admin/user/avatar/getAll");
+      var pagination_data = [];
+      let exist = this;
+      response.forEach((user_item, i) => {
+        exist.save = false;
+        avatarResponse.data.forEach((avatar_item, j) => {
+          let data = user_item;
+          if (user_item.id == avatar_item.user_id) {
+            exist.save = true;
+            if (avatar_item.path == "") {
+              data["user_avatar"] = "/assets/img/default-user-avatar.jpg";
+            } else {
+              data["user_avatar"] = avatar_item.path;
+            }
+            pagination_data.unshift(data);
+          }
+        });
+        if (exist.save == false) {
+          let data = user_item;
+          data["user_avatar"] = "/assets/img/default-user-avatar.jpg";
+          pagination_data.unshift(data);
+        }
+      });
+      var return_data = [];
+      if (filter) {
+        pagination_data.forEach((item, index) => {
+          exist.keys.forEach((key) => {
+            if (item[key].includes(filter)) {
+              return_data.push(item);
+            }
+          });
+        });
+        return_data = exist.removeDuplicates(return_data);
+      } else {
+        return_data = pagination_data;
+      }
+      if (sort) {
+        if (sort.order == "desc") {
+          if (sort.fieldName == "full_name") {
+            return_data.sort(exist.dynamicSortDesc("name"));
+          } else {
+            return_data.sort(exist.dynamicSortDesc(sort.fieldName));
+          }
+        } else if (sort.order == "asc") {
+          if (sort.fieldName == "full_name") {
+            return_data.sort(exist.dynamicSortAsc("name"));
+          } else {
+            return_data.sort(exist.dynamicSortAsc(sort.fieldName));
+          }
+        }
+      }
+      let filteringData = return_data;
+      if (exist.member_gender !== "") {
+        let genderedData = [];
+        filteringData.forEach((item, index) => {
+          if (item["gender"] == exist.member_gender) {
+            genderedData.push(item);
+          }
+        });
+        filteringData = genderedData;
+      }
+      if (exist.member_verification_result !== "") {
+        let verifiedData = [];
+        filteringData.forEach((item, index) => {
+          if (item["verification_result"] == exist.member_verification_result) {
+            verifiedData.push(item);
+          }
+        });
+        filteringData = verifiedData;
+      }
+      if (exist.member_health_status !== "") {
+        let healthedData = [];
+        filteringData.forEach((item, index) => {
+          if (item["health_status"] == exist.member_health_status) {
+            healthedData.push(item);
+          }
+        });
+        filteringData = healthedData;
+      }
+      if (exist.member_company !== "") {
+        let companiedData = [];
+        filteringData.forEach((item, index) => {
+          if (item["company"] == exist.member_company) {
+            companiedData.push(item);
+          }
+        });
+        filteringData = companiedData;
+      }
+      if (exist.member_region !== "") {
+        let regionalData = [];
+        filteringData.forEach((item, index) => {
+          if (item["region"] == exist.member_region) {
+            regionalData.push(item);
+          }
+        });
+        filteringData = regionalData;
+      }
+      if (exist.member_serial != "") {
+        filteringData = filteringData.filter(
+          (item) => item.serial_number == exist.member_serial
+        );
+      }
+      let total_pages = Math.ceil(filteringData.length / 5);
+      filteringData = filteringData.filter(
+        (item, index) => index >= (page - 1) * 5 && index < page * 5
+      );
+      return {
+        data: filteringData,
+        pagination: {
+          totalPages: total_pages,
+          currentPage: page,
+          count: page * 5,
+        },
+      };
+    },
     async getUsers({ page, filter, sort }) {
-      this.page_number = page;
       try {
         var response;
         if (this.user_role == "admin") {
@@ -370,7 +425,7 @@ export default {
         const avatarResponse = await axios.get("/api/admin/user/avatar/getAll");
         var pagination_data = [];
         let exist = this;
-        response.data.data.forEach((user_item, i) => {
+        response.data.forEach((user_item, i) => {
           if (
             user_item.id != this.user_id &&
             user_item.role != this.user_role
@@ -380,7 +435,11 @@ export default {
               let data = user_item;
               if (user_item.id == avatar_item.user_id) {
                 exist.save = true;
-                data["user_avatar"] = avatar_item.path;
+                if (avatar_item.path == "") {
+                  data["user_avatar"] = "/assets/img/default-user-avatar.jpg";
+                } else {
+                  data["user_avatar"] = avatar_item.path;
+                }
                 pagination_data.unshift(data);
               }
             });
@@ -407,13 +466,13 @@ export default {
         if (sort) {
           if (sort.order == "desc") {
             if (sort.fieldName == "full_name") {
-              return_data.sort(exist.dynamicSortDesc("first_name"));
+              return_data.sort(exist.dynamicSortDesc("name"));
             } else {
               return_data.sort(exist.dynamicSortDesc(sort.fieldName));
             }
           } else if (sort.order == "asc") {
             if (sort.fieldName == "full_name") {
-              return_data.sort(exist.dynamicSortAsc("first_name"));
+              return_data.sort(exist.dynamicSortAsc("name"));
             } else {
               return_data.sort(exist.dynamicSortAsc(sort.fieldName));
             }
@@ -472,12 +531,16 @@ export default {
             (item) => item.serial_number == exist.member_serial
           );
         }
+        let total_pages = Math.ceil(filteringData.length / 5);
+        filteringData = filteringData.filter(
+          (item, index) => index >= (page - 1) * 5 && index < page * 5
+        );
         return {
           data: filteringData,
           pagination: {
-            totalPages: response.data.last_page,
+            totalPages: total_pages,
             currentPage: page,
-            count: response.data.to,
+            count: page * 5,
           },
         };
       } catch (error) {
@@ -488,88 +551,45 @@ export default {
     },
     deleteUser(id) {
       let self = this;
-      if (self.$i18n.locale == "en") {
-        window.notie.confirm({
-          text: "Are you sure to delete this user?",
-          cancelCallback: function () {
-            window.toastr["info"]("Cancel");
-          },
-          submitCallback: function () {
-            self.deleteUserData(id);
-          },
-        });
-      } else if (self.$i18n.locale == "ch") {
-        window.notie.confirm({
-          text: "您確定要刪除此用戶嗎？",
-          cancelCallback: function () {
-            window.toastr["info"]("取消");
-          },
-          submitCallback: function () {
-            self.deleteUserData(id);
-          },
-        });
-      }
+      window.notie.confirm({
+        text: "您確定要刪除此用户嗎？",
+        cancelCallback: function () {
+          window.toastr["info"]("取消");
+        },
+        submitCallback: function () {
+          self.deleteUserData(id);
+        },
+      });
     },
     async deleteUserData(id) {
       try {
         let response = await window.axios.delete("/api/admin/users/" + id);
-        this.users = response.data;
         this.$refs.table.refresh();
-        if (this.$i18n.locale == "en") {
-          window.toastr["success"]("User Deleted", "Success");
-        } else if (this.$i18n.locale == "ch") {
-          window.toastr["success"]("用戶已刪除", "成功");
-        }
+        window.toastr["success"]("用户已刪除", "成功");
       } catch (error) {
         if (error) {
-          if (this.$i18n.locale == "en") {
-            window.toastr["error"]("There was an error", "Error");
-          } else if (this.$i18n.locale == "ch") {
-            window.toastr["error"]("有一個錯誤", "錯誤");
-          }
+          window.toastr["error"]("有一個错误", "错误");
         }
       }
     },
     deleteAllUser() {
       let self = this;
-      if (self.$i18n.locale == "en") {
-        window.notie.confirm({
-          text: "Are you sure to delete all members ?",
-          cancelCallback: function () {
-            window.toastr["info"]("Cancel");
-          },
-          submitCallback: function () {
-            self.deleteAllUserData();
-          },
-        });
-      } else if (self.$i18n.locale == "ch") {
-        window.notie.confirm({
-          text: "您確定要刪除所有成員嗎？",
-          cancelCallback: function () {
-            window.toastr["info"]("取消");
-          },
-          submitCallback: function () {
-            self.deleteAllUserData();
-          },
-        });
-      }
+      window.notie.confirm({
+        text: "您確定要刪除所有成員嗎？",
+        cancelCallback: function () {
+          window.toastr["info"]("取消");
+        },
+        submitCallback: function () {
+          self.deleteAllUserData();
+        },
+      });
     },
     async deleteAllUserData() {
       try {
         let response = await window.axios.delete("api/admin/users/all");
-        if (this.$i18n.locale == "en") {
-          window.toastr["success"]("All Users Deleted", "Success");
-        } else if (this.$i18n.locale == "ch") {
-          window.toastr["success"]("已刪除所有用戶", "成功");
-        }
+        window.toastr["success"]("已刪除所有用户", "成功");
       } catch (error) {
-        if (error) {
-          if (this.$i18n.locale == "en") {
-            window.toastr["error"]("There was an error", "Error");
-          } else if (this.$i18n.locale == "ch") {
-            window.toastr["error"]("有一個錯誤", "錯誤");
-          }
-        }
+        window.toastr["error"]("有一個错误", "错误");
       }
     },
     removeDuplicates(arr) {
@@ -610,11 +630,7 @@ export default {
     },
     setRegions(lang) {
       let exist = this;
-      if (lang == "en") {
-        exist.regions = [{ value: "", text: "Select Region" }];
-      } else {
-        exist.regions = [{ value: "", text: "選擇地區" }];
-      }
+      exist.regions = [{ value: "", text: "选择地区" }];
       exist.availableRegions.forEach((region) => {
         exist.regions.push({
           value: region.name,
@@ -622,59 +638,31 @@ export default {
         });
       });
     },
-    setEn() {
-      this.memberGenders = [
-        { value: "", text: "Select Gender" },
-        { value: "male", text: "Male" },
-        { value: "female", text: "Female" },
-      ];
-      this.verificationResults = [
-        { value: "", text: "Select Verification Result" },
-        { value: "nonactivated", text: "Not Activated" },
-        { value: "processing", text: "Processing" },
-        { value: "activated", text: "Activated" },
-      ];
-      this.healthStatues = [
-        { value: "", text: "Select Health Status" },
-        { value: "good", text: "Good" },
-        { value: "normal", text: "Normal" },
-        { value: "bad", text: "Bad" },
-      ];
-      this.companies = [
-        { value: "", text: "Select Company" },
-        { value: "...", text: "..." },
-        { value: "...", text: "..." },
-        { value: "...", text: "..." },
-      ];
-      this.serial_placeholder = "Input Serial Number";
-      this.setRegions("en");
-      this.tooltipText = "Not verified yet";
-    },
     setCh() {
       this.memberGenders = [
-        { value: "", text: "選擇性別" },
-        { value: "male", text: "男性" },
-        { value: "female", text: "女性" },
+        { value: "", text: "选择性別" },
+        { value: "male", text: "男" },
+        { value: "female", text: "女" },
       ];
       this.verificationResults = [
-        { value: "", text: "選擇驗證結果" },
+        { value: "", text: "选择验证结果" },
         { value: "nonactivated", text: "沒有激活" },
         { value: "processing", text: "加工" },
         { value: "activated", text: "活性" },
       ];
       this.healthStatues = [
-        { value: "", text: "選擇健康狀況" },
+        { value: "", text: "选择健康状况" },
         { value: "good", text: "好的" },
         { value: "normal", text: "普通的" },
         { value: "bad", text: "壞的" },
       ];
       this.companies = [
-        { value: "", text: "選擇公司" },
+        { value: "", text: "选择公司" },
         { value: "...", text: "..." },
         { value: "...", text: "..." },
         { value: "...", text: "..." },
       ];
-      this.serial_placeholder = "輸入序列號";
+      this.serial_placeholder = "输入序列号";
       this.setRegions("ch");
       this.tooltipText = "尚未驗證";
     },
@@ -731,15 +719,15 @@ export default {
 .margin_bottom_10 {
   margin-bottom: 10px;
 }
-.user-email div {
+.user-name div {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.user-email div span {
+.user-name div span {
   margin-right: 10px;
 }
-.user-email i {
+.user-name i {
   color: rgb(255 177 0);
   font-size: 15px;
   cursor: pointer;
@@ -747,6 +735,9 @@ export default {
 #serial-input_query {
   max-width: 15% !important;
   margin-top: 10px;
+}
+.delete_color {
+  color: rgb(215 35 35) !important;
 }
 </style>
 

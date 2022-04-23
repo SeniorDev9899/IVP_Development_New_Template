@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File; 
 use App\Avatars;
 
 class AvatarsController extends Controller
@@ -17,7 +18,10 @@ class AvatarsController extends Controller
                 Avatars::where('user_id',$request->user_id)->update([
                     'name' => time().'_'.$request->file('user_img')->getClientOriginalName(),
                     'path' => '/storage/' . $file_path
-                ]);
+                ]);                                
+                if($request->original_img_path) {
+                    File::delete($request->original_img_path);
+                }
                 return Avatars::where('user_id',$request->user_id)->get();
             } else {
                 return Avatars::create([

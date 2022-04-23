@@ -47,80 +47,56 @@
                 <div class="personal-info"></div>
               </div>
               <div class="col-sm-10">
-                <h2>{{ $t("profile.edit_profile") }}</h2>
+                <h2>编辑个人资料</h2>
                 <div class="edit-personal-profile">
                   <b-form @submit.stop.prevent="onSubmit">
                     <div class="user-name-edit">
                       <b-form-group
-                        id="first-name-input-group"
-                        :label="$t('profile.first_name')"
-                        label-for="first-name-input"
+                        id="name-input-group"
+                        label="真实姓名"
+                        label-for="name-input"
                       >
                         <b-form-input
-                          id="first-name-input"
-                          name="first-name-input"
-                          v-model="first_name_sub"
+                          id="name-input"
+                          name="name-input"
+                          v-model="name_sub"
                           v-validate="{ required: true, min: 3 }"
-                          :state="validateState('first-name-input')"
-                          aria-describedby="first-name-input-live-feedback"
-                          data-vv-as="First Name"
-                          @change="onUpdate('first_name', first_name_sub)"
+                          :state="validateState('name-input')"
+                          aria-describedby="name-input-live-feedback"
+                          data-vv-as="Name"
+                          @change="onUpdate('name', name_sub)"
                         ></b-form-input>
 
                         <b-form-invalid-feedback
-                          id="first-name-input-live-feedback"
+                          id="name-input-live-feedback"
                           >{{
-                            veeErrors.first("first-name-input")
-                          }}</b-form-invalid-feedback
-                        >
-                      </b-form-group>
-
-                      <b-form-group
-                        id="last-name-input-group"
-                        :label="$t('profile.last_name')"
-                        label-for="last-name-input"
-                      >
-                        <b-form-input
-                          id="last-name-input"
-                          name="last-name-input"
-                          v-model="last_name_sub"
-                          v-validate="{ required: true, min: 3 }"
-                          :state="validateState('last-name-input')"
-                          aria-describedby="last-name-input-live-feedback"
-                          data-vv-as="Last Name"
-                          @change="onUpdate('last_name', last_name_sub)"
-                        ></b-form-input>
-
-                        <b-form-invalid-feedback
-                          id="last-name-input-live-feedback"
-                          >{{
-                            veeErrors.first("last-name-input")
+                            veeErrors.first("name-input")
                           }}</b-form-invalid-feedback
                         >
                       </b-form-group>
                     </div>
 
-                    <div class="email-edit">
+                    <div class="username-edit">
                       <b-form-group
-                        id="email-input-group"
-                        :label="$t('profile.email')"
-                        label-for="email-input"
+                        id="username-input-group"
+                        label="用户名"
+                        label-for="username-input"
                       >
                         <b-form-input
-                          id="email-input"
-                          name="email-input"
-                          v-model="user_email_sub"
+                          id="username-input"
+                          name="username-input"
+                          v-model="username_sub"
                           v-validate="{ required: true, min: 3 }"
-                          :state="validateState('email-input')"
-                          aria-describedby="email-input-live-feedback"
-                          data-vv-as="Email"
-                          @change="onUpdate('email', user_email_sub)"
+                          :state="validateState('username-input')"
+                          aria-describedby="username-input-live-feedback"
+                          data-vv-as="User Name"
+                          @change="onUpdate('username', username_sub)"
                         ></b-form-input>
 
                         <b-form-invalid-feedback
-                          id="email-input-live-feedback"
+                          id="username-input-live-feedback"
                           >{{
-                            veeErrors.first("email-input")
+                            veeErrors.first("username-input")
                           }}</b-form-invalid-feedback
                         >
                       </b-form-group>
@@ -129,7 +105,7 @@
                     <div class="user-gender-role-edit">
                       <b-form-group
                         id="gender-input-group"
-                        :label="$t('profile.gender')"
+                        label="性別"
                         label-for="gender-input"
                       >
                         <b-form-select
@@ -154,7 +130,7 @@
 
                       <b-form-group
                         id="role-input-group"
-                        :label="$t('profile.role')"
+                        label="角色"
                         label-for="role-input"
                         :class="
                           current_user_role == 'practitioner'
@@ -186,7 +162,7 @@
                     <div class="id-serial-edit">
                       <b-form-group
                         id="id-input-group"
-                        :label="$t('profile.id_number')"
+                        label="身份证号码"
                         label-for="id-input"
                       >
                         <b-form-input
@@ -207,7 +183,7 @@
 
                       <b-form-group
                         id="serial-input-group"
-                        :label="$t('profile.serial_number')"
+                        label="序列号"
                         label-for="serial-input"
                       >
                         <b-form-input
@@ -235,7 +211,7 @@
                     <div class="validiaty_period-edit">
                       <b-form-group
                         id="vp-input-group"
-                        :label="$t('profile.validity_period')"
+                        label="有效期"
                         label-for="vp-input"
                         :class="
                           current_user_role == 'practitioner'
@@ -249,7 +225,7 @@
                           :state="validateState('vp-input')"
                           v-validate="{ required: true }"
                           v-model="user_validity_period_sub"
-                          :locale="locale"
+                          locale="zh"
                           :start-weekday="weekday"
                           :show-decade-nav="showDecadeNav"
                           :hide-header="hideHeader"
@@ -268,13 +244,13 @@
                       </b-form-group>
                     </div>
 
-                    <div class="company-region-edit">
-                      <b-form-group
-                        id="company-input-group"
-                        :label="$t('profile.company')"
-                        label-for="company-input"
-                      >
-                        <b-form-input
+                    <div
+                      class="company-region-edit"
+                      label-for="company-input"
+                      v-if="user_role_sub != 'admin'"
+                    >
+                      <b-form-group id="company-input-group" label="公司">
+                        <b-form-select
                           id="company-input"
                           name="company-input"
                           v-model="user_company_sub"
@@ -282,8 +258,9 @@
                           :state="validateState('company-input')"
                           aria-describedby="company-input-live-feedback"
                           data-vv-as="Company"
+                          :options="companies"
                           @change="onUpdate('company', user_company_sub)"
-                        ></b-form-input>
+                        ></b-form-select>
 
                         <b-form-invalid-feedback
                           id="company-input-live-feedback"
@@ -295,7 +272,7 @@
 
                       <b-form-group
                         id="region-input-group"
-                        :label="$t('profile.region')"
+                        label="地区"
                         label-for="region-input"
                         :class="
                           user_role_sub != 'admin'
@@ -327,7 +304,7 @@
                     <div class="verification-health-edit">
                       <b-form-group
                         id="health-input-group"
-                        :label="$t('profile.health_status')"
+                        label="健康状况"
                         label-for="health-input"
                       >
                         <b-form-select
@@ -353,24 +330,139 @@
                       </b-form-group>
                     </div>
 
+                    <div class="personnel-remark-information">
+                      <b-form-group
+                        id="remark-input-group"
+                        label="行业数据库"
+                        label-for="remark-input"
+                        :class="
+                          user_role_sub !== 'practitioner'
+                            ? 'display_none'
+                            : 'display_block'
+                        "
+                      >
+                        <b-form-file
+                          id="remark-input"
+                          name="remark-input"
+                          placeholder="选择一个文件或把它放在这里..."
+                          drop-placeholder="把文件放在这里..."
+                          v-model="user_remark_info"
+                          :state="validateState('remark-input')"
+                          aria-describedby="remark-input-live-feedback"
+                          data-vv-as="Remark Information"
+                          @change="onChangeRemarkInformation"
+                        ></b-form-file>
+
+                        <!-- :v-validate="
+                            user_role_sub == 'practitioner' &&
+                            remark_file_name == ''
+                              ? { required: true }
+                              : { required: false }
+                          " -->
+
+                        <div class="mt-3 remark_name">
+                          <div>选择的文件 : {{ remark_file_name }}</div>
+                          <div
+                            class="file-actions"
+                            v-if="remark_file_name != ''"
+                          >
+                            <div class="download">
+                              <span
+                                @click="downloadFile"
+                                v-tooltip="{
+                                  content: tooltip_text,
+                                  placement: position + '-center',
+                                  delay: {
+                                    show: 200,
+                                    hide: 300,
+                                  },
+                                  classes: ['info'],
+                                }"
+                                ><i
+                                  class="fa fa-download"
+                                  aria-hidden="true"
+                                ></i
+                              ></span>
+                            </div>
+                            <div class="delete">
+                              <span
+                                @click="deleteFile"
+                                v-tooltip="{
+                                  content: tooltip_text_delete,
+                                  placement: position + '-center',
+                                  delay: {
+                                    show: 200,
+                                    hide: 300,
+                                  },
+                                  classes: ['info'],
+                                }"
+                                ><i class="fa fa-trash" aria-hidden="true"></i
+                              ></span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <b-form-invalid-feedback
+                          id="remark-input-live-feedback"
+                          >{{
+                            veeErrors.first("remark-input")
+                          }}</b-form-invalid-feedback
+                        >
+                      </b-form-group>
+                    </div>
+
+                    <div class="comments-information">
+                      <b-form-group
+                        id="comments-input-group"
+                        label="员工评价"
+                        label-for="comments-input"
+                        :class="
+                          user_role_sub !== 'practitioner'
+                            ? 'display_none'
+                            : 'display_block'
+                        "
+                      >
+                        <b-form-textarea
+                          id="comments-input"
+                          name="comments-input"
+                          v-model="user_comments"
+                          placeholder="输入评论..."
+                          rows="3"
+                          max-rows="6"
+                          :state="validateState('comments-input')"
+                          aria-describedby="comments-input-live-feedback"
+                          data-vv-as="Comments Status"
+                        ></b-form-textarea>
+
+                        <!-- :v-validate="
+                            user_role_sub == 'practitioner'
+                              ? { required: true }
+                              : { required: false }
+                          " -->
+
+                        <b-form-invalid-feedback
+                          id="comments-input-live-feedback"
+                          >{{
+                            veeErrors.first("comments-input")
+                          }}</b-form-invalid-feedback
+                        >
+                      </b-form-group>
+                    </div>
+
                     <div class="submit-reset">
                       <b-button class="user-info-submit" type="submit">
-                        <span v-if="loadingPage == false">{{
-                          $t("profile.save")
-                        }}</span>
+                        <span v-if="loadingPage == false">保存</span>
                         <clip-loader :loading="loadingPage"></clip-loader>
                       </b-button>
                     </div>
                   </b-form>
                 </div>
-                <h2 style="margin-top: 40px">
-                  {{ $t("profile.update_password") }}
-                </h2>
+                <h2 style="margin-top: 40px">更新密码</h2>
                 <div class="edit-personal-password">
                   <b-form @submit.stop.prevent="changePassword">
                     <b-form-group
                       id="current-password-input-group"
-                      :label="$t('profile.current_password')"
+                      label="当前密码"
                       label-for="current-password-input"
                     >
                       <b-form-input
@@ -398,7 +490,7 @@
 
                     <b-form-group
                       id="new-password-input-group"
-                      :label="$t('profile.new_password')"
+                      label="新密码"
                       label-for="new-password-input"
                     >
                       <b-form-input
@@ -424,7 +516,7 @@
 
                     <b-form-group
                       id="confirm-password-input-group"
-                      :label="$t('profile.confirm_password')"
+                      label="确认密码"
                       label-for="confirm-password-input"
                     >
                       <b-form-input
@@ -451,9 +543,7 @@
                     </b-form-group>
                     <div class="submit-user-password-change">
                       <b-button class="user-info-submit" type="submit">
-                        <span v-if="loadingPagePass == false">{{
-                          $t("profile.save")
-                        }}</span>
+                        <span v-if="loadingPagePass == false">保存</span>
                         <clip-loader :loading="loadingPagePass"></clip-loader>
                       </b-button>
                     </div>
@@ -478,9 +568,8 @@ export default {
   props: [
     "user_id",
     "user_picture",
-    "user_first_name",
-    "user_last_name",
-    "user_email",
+    "name",
+    "username",
     "user_gender",
     "current_user_role",
     "user_role",
@@ -490,9 +579,10 @@ export default {
     "user_company",
     "user_region",
     "user_health_status",
-    "current_user_verification_status",
     "tooltipText",
     "current_user_id",
+    "remarkInfo",
+    "comments",
   ],
   watch: {
     user_id: function (newVal, oldVal) {
@@ -504,14 +594,11 @@ export default {
     user_picture: function (newVal, oldval) {
       this.user_picture_sub = newVal;
     },
-    user_first_name: function (newVal, oldVal) {
-      this.first_name_sub = newVal;
+    name: function (newVal, oldVal) {
+      this.name_sub = newVal;
     },
-    user_last_name: function (newVal, oldVal) {
-      this.last_name_sub = newVal;
-    },
-    user_email: function (newVal, oldVal) {
-      this.user_email_sub = newVal;
+    username: function (newVal, oldVal) {
+      this.username_sub = newVal;
     },
     user_gender: function (newVal, oldVal) {
       this.user_gender_sub = newVal;
@@ -533,18 +620,26 @@ export default {
     },
     user_region: function (newVal, oldVal) {
       this.user_region_sub = newVal;
+      this.getCompaniesWithRegionName(this.user_region_sub);
     },
     user_health_status: function (newVal, oldVal) {
       this.user_health_status_sub = newVal;
+    },
+    remarkInfo: function (newVal, oldVal) {
+      let length = newVal.split("/").length;
+      this.remark_file_name = newVal.split("/")[length - 1];
+      this.remark_file_path = newVal;
+    },
+    comments: function (newVal, oldVal) {
+      this.user_comments = newVal;
     },
   },
   data() {
     return {
       user_picture_sub: "",
       position: "bottom",
-      first_name_sub: "",
-      last_name_sub: "",
-      user_email_sub: "",
+      name_sub: "",
+      username_sub: "",
       user_gender_sub: "",
       user_role_sub: "",
       user_id_number_sub: "",
@@ -552,26 +647,30 @@ export default {
       user_validity_period_sub: "",
       user_company_sub: "",
       user_region_sub: "",
-      current_user_verification_status_sub: "",
+      user_remark_info: null,
+      remark_file_name: "",
+      remark_file_path: "",
+      user_comments: null,
       tooltipText_sub: null,
       user_id_sub: "",
       current_user_id_sub: "",
       originalData: null,
       keepUserInfo: "",
       roles: [
-        { value: "practitioner", text: "Practitioner" },
-        { value: "regional_admin", text: "Regional Admin" },
-        { value: "admin", text: "System Admin" },
+        { value: "practitioner", text: "从业者" },
+        { value: "regional_admin", text: "区域管理员" },
+        { value: "admin", text: "系统总管理员" },
       ],
       regions: [],
+      companies: [],
       healthStatues: [
-        { value: "bad", text: "Bad" },
-        { value: "normal", text: "Normal" },
-        { value: "good", text: "Good" },
+        { value: "bad", text: "不健康" },
+        { value: "normal", text: "普通的" },
+        { value: "good", text: "健康" },
       ],
       genders: [
-        { value: "male", text: "Male" },
-        { value: "female", text: "Female" },
+        { value: "male", text: "男" },
+        { value: "female", text: "女" },
       ],
       loadingPage: false,
       loadingPagePass: false,
@@ -587,6 +686,9 @@ export default {
       ],
       showDecadeNav: false,
       hideHeader: false,
+      tooltip_text: "文件下载",
+      tooltip_text_delete: "删除文件",
+      position: "top",
     };
   },
   components: {
@@ -599,9 +701,8 @@ export default {
     this.user_id_sub = this.user_id;
     this.current_user_id_sub = this.current_user_id;
     this.user_picture_sub = this.user_picture;
-    this.first_name_sub = this.user_first_name;
-    this.last_name_sub = this.user_last_name;
-    this.user_email_sub = this.user_email;
+    this.name_sub = this.name;
+    this.username_sub = this.username;
     this.user_gender_sub = this.user_gender;
     this.user_role_sub = this.user_role;
     this.user_id_number_sub = this.user_id_number;
@@ -620,16 +721,18 @@ export default {
     }
     this.user_company_sub = this.user_company;
     this.user_region_sub = this.user_region;
+    this.getCompaniesWithRegionName(this.user_region_sub);
     this.user_health_status_sub = this.user_health_status;
-    this.current_user_verification_status_sub =
-      this.current_user_verification_status;
     this.tooltipText_sub = this.tooltipText;
+    let length = this.remarkInfo.split("/").length;
+    this.remark_file_name = this.remarkInfo.split("/")[length - 1];
+    this.remark_file_path = this.remarkInfo;
+    this.user_comments = this.comments;
     this.loadingPage = false;
 
     this.originalData = {
-      first_name: this.first_name_sub,
-      last_name: this.last_name_sub,
-      email: this.user_email_sub,
+      name: this.name_sub,
+      username: this.username_sub,
       gender: this.user_gender_sub,
       role: this.user_role_sub,
       id_number: this.user_id_number_sub,
@@ -638,7 +741,6 @@ export default {
       region: this.user_region_sub,
       picture: this.user_picture_sub,
       health_status: this.user_health_status_sub,
-      verification_status: this.current_user_verification_status_sub,
       validity_period: this.user_validity_period_sub,
     };
     this.getAllRegions().then((res) => {
@@ -649,15 +751,6 @@ export default {
         };
       });
     });
-  },
-  computed: {
-    locale() {
-      if (this.$i18n.locale == "en") {
-        return "en-US";
-      } else if (this.$i18n.locale == "ch") {
-        return "zh";
-      }
-    },
   },
   methods: {
     getAllRegions() {
@@ -685,6 +778,12 @@ export default {
         },
       };
       let formData = new FormData();
+      if (this.user_picture_sub != "/assets/img/default-user-avatar.jpg") {
+        formData.append(
+          "original_img_path",
+          this.user_picture_sub.substring(1)
+        );
+      }
       formData.append("user_img", this.img);
       formData.append("user_id", this.user_id_sub);
       if (formData.getAll("user_img")[0] !== "") {
@@ -698,14 +797,7 @@ export default {
               Ls.set("user_avatar", res.data.path);
               exist.setUserAvatar(res.data.path);
             }
-            if (exist.$i18n.locale == "en") {
-              window.toastr["success"](
-                "The user avatar has been changed!",
-                "Success"
-              );
-            } else if (exist.$i18n.locale == "ch") {
-              window.toastr["success"]("用戶頭像已更改！", "成功");
-            }
+            window.toastr["success"]("用户头像已更改！", "成功");
           });
       }
       this.img = "";
@@ -713,31 +805,88 @@ export default {
     changeAvatarOccurr() {
       document.getElementById("user-avatar").click();
     },
+    onChangeRemarkInformation(e) {
+      const file = e.target.files[0];
+      const file_type = file.type;
+      if (
+        file_type.includes("image") ||
+        file_type.includes("application") ||
+        file_type.includes("text/plain")
+      ) {
+        this.user_remark_info = file;
+        this.remark_file_name = this.user_remark_info.name;
+        if (this.user_remark_info !== "") {
+          e.preventDefault();
+          const config = {
+            headers: {
+              "content-type": "multipart/form-data",
+            },
+          };
+          let formData = new FormData();
+          if (this.remark_file_path != "") {
+            formData.append(
+              "remark_file_path",
+              this.remark_file_path.substring(1)
+            );
+          }
+          formData.append("user_remark_info", this.user_remark_info);
+          formData.append("username", this.username_sub);
+          formData.append("user_id", this.user_id_sub);
+          let exist = this;
+          if (formData.getAll("user_remark_info")[0] !== "") {
+            axios
+              .post("/api/admin/user/setUserRemarkInfo", formData, config)
+              .then(function (res) {
+                exist.remark_file_path = res.data;
+                exist.$emit("fileChanged", exist.remark_file_path);
+              });
+          }
+        }
+      } else {
+        window.toastr["info"]("不允许上传文件扩展名。", "信息");
+      }
+    },
     onSubmit() {
       let exist = this;
-      exist.loadingPage = true;
       this.$validator.validateAll().then((result) => {
         if (!result) {
           return;
         }
 
-        let formData = {
-          first_name: exist.first_name_sub,
-          last_name: exist.last_name_sub,
-          email: exist.user_email_sub,
-          role: exist.user_role_sub,
-          gender: exist.user_gender_sub,
-          id_number: exist.user_id_number_sub,
-          serial_number: exist.user_serial_number_sub,
-          validity_period: exist.user_validity_period_sub,
-          company: exist.user_company_sub,
-          region: exist.user_region_sub,
-          health_status: exist.user_health_status_sub,
-        };
+        exist.loadingPage = true;
 
-        this.originalData.first_name = formData.first_name;
-        this.originalData.last_name = formData.last_name;
-        this.originalData.email = formData.email;
+        let formData;
+        if (exist.user_role_sub == "practitioner") {
+          formData = {
+            name: exist.name_sub,
+            username: exist.username_sub,
+            role: exist.user_role_sub,
+            gender: exist.user_gender_sub,
+            id_number: exist.user_id_number_sub,
+            serial_number: exist.user_serial_number_sub,
+            validity_period: exist.user_validity_period_sub,
+            company: exist.user_company_sub,
+            region: exist.user_region_sub,
+            health_status: exist.user_health_status_sub,
+            comments: exist.user_comments,
+          };
+        } else {
+          formData = {
+            name: exist.name_sub,
+            username: exist.username_sub,
+            role: exist.user_role_sub,
+            gender: exist.user_gender_sub,
+            id_number: exist.user_id_number_sub,
+            serial_number: exist.user_serial_number_sub,
+            validity_period: exist.user_validity_period_sub,
+            company: exist.user_company_sub,
+            region: exist.user_region_sub,
+            health_status: exist.user_health_status_sub,
+          };
+        }
+
+        this.originalData.name = formData.name;
+        this.originalData.username = formData.username;
         this.originalData.gender = formData.gender;
         this.originalData.role = formData.role;
         this.originalData.id_number = formData.id_number;
@@ -752,9 +901,8 @@ export default {
           .then(function (res) {
             exist.loadingPage = false;
             let qr_text = JSON.stringify({
-              first_name: exist.first_name_sub,
-              last_name: exist.last_name_sub,
-              email: exist.user_email_sub,
+              name: exist.name_sub,
+              username: exist.username_sub,
               role: exist.user_role_sub,
               id_number: exist.user_id_number_sub,
               serial_number: exist.user_serial_number_sub,
@@ -765,20 +913,12 @@ export default {
             });
             exist.$emit("produceQR", qr_text);
             if (exist.user_id_sub == exist.current_user_id_sub) {
-              Ls.set("First Name", res.data[0].first_name);
-              Ls.set("Last Name", res.data[0].last_name);
-              Ls.set("Email", res.data[0].email);
+              Ls.set("Name", res.data[0].name);
+              Ls.set("username", res.data[0].username);
               Ls.set("Role", res.data[0].role);
               Ls.set("Gender", res.data[0].gender);
             }
-            if (exist.$i18n.locale == "en") {
-              window.toastr["success"](
-                "Your personal information has been changed!",
-                "Success"
-              );
-            } else if (exist.$i18n.locale == "ch") {
-              window.toastr["success"]("您的個人信息已被更改！", "成功");
-            }
+            window.toastr["success"]("您的个人信息已被更改!", "成功");
           });
       });
       if (exist.keepUserInfo != "") {
@@ -848,6 +988,9 @@ export default {
           }
         });
       }
+      if (type == "region") {
+        this.getCompaniesWithRegionName(value);
+      }
     },
     submitKeepInfo() {
       Auth.keepRemarkInformation(this.user_id_sub, {
@@ -897,44 +1040,62 @@ export default {
               if (exist.keepUserInfo != "") {
                 exist.submitKeepInfo();
               }
-              if (exist.$i18n.locale == "en") {
-                window.toastr["success"](
-                  "Your password has been changed successfully!",
-                  "Success"
-                );
-              } else if (exist.$i18n.locale == "ch") {
-                window.toastr["success"]("你已經成功更改密碼！", "成功");
-              }
+              window.toastr["success"]("你已經成功更改密码！", "成功");
             } else if (res.data == 3) {
-              if (exist.$i18n.locale == "en") {
-                window.toastr["error"](
-                  "Your current password is not correct",
-                  "Error"
-                );
-              } else if (exist.$i18n.locale == "ch") {
-                window.toastr["error"]("您當前的密碼不正確", "錯誤");
-              }
+              window.toastr["error"]("您当前的密码不正確", "错误");
             } else if (res.data == 2) {
-              if (exist.$i18n.locale == "en") {
-                window.toastr["error"](
-                  "Please confirm new password again",
-                  "Error"
-                );
-              } else if (exist.$i18n.locale == "ch") {
-                window.toastr["error"]("請再次確認新密碼", "錯誤");
-              }
+              window.toastr["error"]("請再次身份验证密码", "错误");
             }
           });
       });
     },
-    doSomethingInParentComponentFunction(e) {
-      console.log("Selected => ", e);
+    doSomethingInParentComponentFunction(e) {},
+    datepickerOpenedFunction(e) {},
+    datepickerClosedFunction(e) {},
+    async getCompaniesWithRegionName(region_name) {
+      let info = {
+        region_name: region_name,
+      };
+      let response = await axios.post(
+        "/api/admin/region/companieswithname",
+        info
+      );
+      if (response.data) {
+        let length = response.data.split(" / ").length;
+        let companies = response.data.split(" / ").slice(0, length);
+        this.companies = companies.map((item) => {
+          return {
+            value: item,
+            text: item,
+          };
+        });
+      } else {
+        this.companies = [
+          {
+            value: "...",
+            text: "该地区没有公司",
+          },
+        ];
+      }
     },
-    datepickerOpenedFunction(e) {
-      console.log("Opened => ", e);
+    downloadFile() {
+      this.$emit("downloadFile", this.remark_file_name);
     },
-    datepickerClosedFunction(e) {
-      console.log("Closed => ", e);
+    async deleteFile() {
+      const id = this.user_id_sub;
+      let fileInfo = {
+        path: this.remark_file_path.substring(1),
+      };
+      let response = await axios.post(
+        `/api/admin/user/delete/remarkInfo/${id}`,
+        fileInfo
+      );
+      if (response.data == 1) {
+        this.remark_file_name = "";
+        this.remark_file_path = "";
+        this.user_remark_info = null;
+        window.toastr["success"]("历史记录已删除！", "成功");
+      }
     },
   },
 };
@@ -969,7 +1130,6 @@ export default {
   background-color: rgb(240 246 247);
   padding: 10px;
 }
-.user-name-edit,
 .id-serial-edit,
 .user-gender-role-edit,
 .company-region-edit {
@@ -978,8 +1138,6 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.user-name-edit #first-name-input-group,
-.user-name-edit #last-name-input-group,
 .user-gender-role-edit #gender-input-group,
 .user-gender-role-edit #role-input-group,
 .id-serial-edit #id-input-group,
@@ -1013,6 +1171,36 @@ export default {
 .visibility_hidden {
   visibility: hidden;
 }
+.remark_name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 50px;
+}
+.download i {
+  font-size: 20px;
+  color: rgb(121 207 140);
+  cursor: pointer;
+}
+.download i:hover {
+  color: rgb(135 235 72);
+}
+.delete i {
+  font-size: 17px;
+  color: rgb(231 19 68);
+  cursor: pointer;
+}
+.delete i:hover {
+  color: rgb(253 4 62);
+}
+.file-actions {
+  margin-right: 35px;
+}
 </style>
 
 <style>
@@ -1020,5 +1208,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.custom-file-input ~ .custom-file-label[data-browse]::after {
+  visibility: hidden !important;
 }
 </style>

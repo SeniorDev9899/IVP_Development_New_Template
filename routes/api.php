@@ -51,8 +51,24 @@ Route::post('email-exist',[
     'as' => 'email-exist','uses' => 'Demo\PagesController@emailExist'
 ]);
 
+Route::post('region-exist', [
+    'as' => 'region-exist', 'uses' => 'Demo\PagesController@regionExist'
+]);
+
 Route::get('/get/allAdminUsers', [
     'as' => 'admin.users.all', 'uses' => 'Demo\PagesController@allAdminUsers' 
+]);
+
+Route::delete('/regions/{id}',[
+    'as' => 'admin.regions.delete', 'uses' => 'Demo\PagesController@destroyRegion'
+]);
+
+Route::get('/region/companies/{id}', [
+    'as' => 'admin.region.companies.get', 'uses' => 'Demo\PagesController@getRegionCompaniesWithId'
+]);
+
+Route::get('/regionIDWithName/{name}', [
+    'as' => 'get.regionIDWithName', 'uses' => 'Demo\PagesController@getRegionIDWithName'
 ]);
 
 // admin route
@@ -105,8 +121,16 @@ Route::group(['prefix' => 'admin', 'middleware' => 'api.auth'], function (){
             'as' => 'admin.user.change.avatar', 'uses' => 'AvatarsController@changeUserAvatar'
         ]);
 
+        Route::post('/setUserRemarkInfo', [
+            'as' => 'admin.user.setUserRemarkInfo', 'uses' => 'Demo\PagesController@setUserRemarkInfo'
+        ]);
+
         Route::post('/updatePassword/{id}', [
             'as' => 'admin.user.updatePassword', 'uses' => 'Demo\PagesController@updateUserPasswordWithId'
+        ]);
+
+        Route::post('/delete/remarkInfo/{id}', [
+            'as' => 'admin.user.delete.remarkInfo', 'uses' => 'Demo\PagesController@deleteRemarkInfo'
         ]);
 
         Route::group(['prefix' => 'avatar'], function (){
@@ -137,6 +161,17 @@ Route::group(['prefix' => 'admin', 'middleware' => 'api.auth'], function (){
         ]);
         Route::get('/get/all', [
             'as' => 'admin.region.get.all', 'uses' => 'Demo\PagesController@getAllRegions'
+        ]);
+
+        Route::post('/company/add/new', [
+            'as' => 'admin.region.company.add.new', 'uses' => 'Demo\PagesController@addNewRegionCompany'
+        ]);
+
+        Route::post('/company/update', [
+            'as' => 'admin.region.company.update', 'uses' => 'Demo\PagesController@updateRegionCompany'
+        ]);
+        Route::post('/companieswithname', [
+            'as' => 'admin.region.companieswithname', 'uses' => 'Demo\PagesController@getRegionCompaniesWithName'
         ]);
     });
 

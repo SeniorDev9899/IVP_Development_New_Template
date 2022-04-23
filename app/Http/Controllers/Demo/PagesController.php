@@ -11,12 +11,21 @@ use App\Regions;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File; 
 
 class PagesController extends Controller
 {
     public function emailExist(Request $request)
     {
-        if (User::whereEmail($request->email)->first()) {
+        if (User::where('username', $request->username)->first()) {
+            return 'false';
+        } else {
+            return 'true';
+        }
+    }
+
+    public function regionExist(Request $request) {
+        if (Regions::where('name', $request->region_name)->first()) {
             return 'false';
         } else {
             return 'true';
@@ -26,7 +35,7 @@ class PagesController extends Controller
     public function allUsers()
     {
     //    return $users = User::whereRole('practitioner')->paginate(10);
-       return $users = User::orderBy('id','desc')->paginate(5);
+       return $users = User::orderBy('id','asc')->get();
     }
 
     public function usersOnRegion($region_name) 
@@ -52,9 +61,8 @@ class PagesController extends Controller
 
     public function editUserWithId(Request $request, $id){
         $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email',
+            'name' => 'required',
+            'username' => 'required',
             'role' => 'required',
             'gender' => 'required',
             'id_number' => 'required',
@@ -66,9 +74,8 @@ class PagesController extends Controller
         ]);
 
         User::where('id',$id)->update([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
+            'name' => $request->name,
+            'username' => $request->username,
             'role' => $request->role,
             'gender' => $request->gender,
             'id_number' => $request->id_number,
@@ -78,7 +85,66 @@ class PagesController extends Controller
             'region' => $request->region,
             'health_status' => $request->health_status
         ]);
+
+        if($request->comments) {
+            User::where('id',$id)->update([
+                'comments' => $request->comments
+            ]);
+        }
+
         return User::where('id', $id)->get();
+    }
+
+    public function setUserRemarkInfo(Request $request) {        
+
+        if($request->file('user_remark_info')) {
+            $file_name = $request->username.'_'.$request->file('user_remark_info')->getClientOriginalName();
+            $file_path = $request->file('user_remark_info')->storeAs('uploads', $file_name, 'public');
+            if($request->remark_file_path) {
+                File::delete($request->remark_file_path);
+            }
+            User::where('id',$request->user_id)->update([
+                'remark_file' => '/storage/' . $file_path
+            ]);
+            return User::where('id', $request->user_id)->pluck("remark_file")->first();
+        }
+    }
+
+    public function getRegionCompaniesWithId($id) {
+        $region = Regions::where('id', $id)->first();
+        return response()->json([
+            'companies' => $region->companies
+        ]);
+    }
+
+    public function addNewRegionCompany(Request $request) {
+        $regionCompanies = Regions::where('id',$request->region_id)->pluck('companies')->first();
+        if($regionCompanies == "") {
+            return Regions::where('id',$request->region_id)->update([
+                'companies' => $request->company_name
+            ]);
+        } else {
+            return Regions::where('id',$request->region_id)->update([
+                'companies' => $regionCompanies . " / " . $request->company_name
+            ]);
+        }
+    }
+
+    public function updateRegionCompany(Request $request) {
+        return Regions::where('id', $request->region_id)->update([
+            'companies' => $request->companies
+        ]);
+    }
+
+    public function getRegionCompaniesWithName(Request $request) {
+        return $regionCompanies = Regions::where('name', $request->region_name)->pluck("companies")->first();
+    }
+
+    public function destroyRegion($id)
+    {
+        $region = Regions::findOrFail($id);
+        $region->delete();
+        return $regions = Regions::all();
     }
 
     public function updateUserPasswordWithId(Request $request, $id) {
@@ -133,10 +199,23 @@ class PagesController extends Controller
         ]);
     }
 
+    public function getRegionIDWithName($name) {
+        return $region = Regions::where('name', $name)->pluck("id")->first();
+    }
+
     // New Added
 
     public function getAllRegions(Request $request) {
         return Regions::orderBy('id','asc')->get();
+    }
+
+    public function deleteRemarkInfo(Request $request, $id) {
+        if($request->path) {
+            File::delete($request->path);
+        }
+        return User::where('id', $id)->update([
+            'remark_file' => ''
+        ]);
     }
 
     public function destroy($id)

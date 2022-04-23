@@ -1,17 +1,12 @@
 import VueRouter from 'vue-router'
 import VeeValidate from 'vee-validate'
 import Vuelidate from 'vuelidate'
-import VuePrism from 'vue-prism'
 import VTooltip from 'v-tooltip'
-import VueRecaptcha from "vue-recaptcha"
 import BootstrapVue from 'bootstrap-vue'
 import imageZoom from 'vue-image-zoomer'
-import VueCountryCode from "vue-country-code-select"
+import VueHtml2Canvas from "vue-html2canvas"
 
 import Ls from './services/ls'
-import VDropdown from './components/dropdown/VDropdown'
-import VDropdownItem from './components/dropdown/VDropdownItem'
-import VDropdownDivider from './components/dropdown/VDropdownDivider'
 import VCollapse from './components/collapse/VCollapse'
 import VCollapseItem from './components/collapse/VCollapseItem'
 
@@ -19,8 +14,6 @@ import VCollapseItem from './components/collapse/VCollapseItem'
  * Global CSS imports
  */
 import 'vue-tabs-component/docs/resources/tabs-component.css'
-import 'vue-multiselect/dist/vue-multiselect.min.css'
-// import 'vue2-dropzone/dist/vue2Dropzone.css'
 
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
@@ -94,16 +87,16 @@ require('./helpers/directives')
 /**
  * Global Components
  */
-Vue.component('v-dropdown', VDropdown)
-Vue.component('v-dropdown-item', VDropdownItem)
-Vue.component('v-dropdown-divider', VDropdownDivider)
+// Vue.component('v-dropdown', VDropdown)
+// Vue.component('v-dropdown-item', VDropdownItem)
+// Vue.component('v-dropdown-divider', VDropdownDivider)
 Vue.component('v-collapse', VCollapse)
 Vue.component('v-collapse-item', VCollapseItem)
-Vue.component('vue-recaptcha', VueRecaptcha);
+// Vue.component('vue-recaptcha', VueRecaptcha);
 Vue.component('image-zoom', imageZoom);
 
 Vue.use(VueRouter)
-Vue.use(VuePrism)
+// Vue.use(VuePrism)
 Vue.use(VTooltip)
 Vue.use(VeeValidate, {
   inject: true,
@@ -112,4 +105,4 @@ Vue.use(VeeValidate, {
 })
 Vue.use(Vuelidate)
 Vue.use(BootstrapVue)
-Vue.use(VueCountryCode)
+Vue.use(VueHtml2Canvas)

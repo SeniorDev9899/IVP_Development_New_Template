@@ -6,7 +6,6 @@
 // import VueI18n from 'vue-i18n'
 import router from './router.js'
 import utils from './helpers/utilities'
-import i18n from './i18n/i18n'
 
 require('./bootstrap')
 
@@ -19,7 +18,6 @@ Vue.prototype.$utils = utils
  */
 const app = new Vue({
   router,
-  i18n
   // Theme Swiching Demo Component (You can remove it if not required)
   // components: {
   //   ThemeSwitcher

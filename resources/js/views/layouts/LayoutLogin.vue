@@ -3,7 +3,7 @@
     v-if="loading == false"
     class="page-style1 page-style2 light-mode default-sidebar"
   >
-    <div class="language-select">
+    <!-- <div class="language-select">
       <vue-country-code
         @onSelect="onSelect"
         :dropdownOptions="{
@@ -13,7 +13,7 @@
         :defaultCountry="getCountry"
       >
       </vue-country-code>
-    </div>
+    </div> -->
     <div class="d-md-flex">
       <div class="w-40 bg-style h-100vh page-style">
         <div class="page-content">
@@ -24,7 +24,7 @@
                 alt="img"
                 class="header-brand-img mb-5"
               />
-              <span class="header-brand-title">{{ $t("title") }}</span>
+              <span class="header-brand-title">管理平台</span>
             </div>
             <div class="card-body text-white py-5 px-8 text-center">
               <img
@@ -58,24 +58,24 @@ export default {
     this.loading = false;
   },
   computed: {
-    getCountry() {
-      if (Ls.get("countryLang") != null) {
-        return Ls.get("countryLang");
-      } else {
-        return "CN";
-      }
-    },
+    // getCountry() {
+    //   if (Ls.get("countryLang") != null) {
+    //     return Ls.get("countryLang");
+    //   } else {
+    //     return "CN";
+    //   }
+    // },
   },
   methods: {
-    onSelect({ name, iso2, dialCode }) {
-      if (iso2.toString() == "US") {
-        this.$i18n.locale = "en";
-        Ls.set("countryLang", iso2.toString());
-      } else if (iso2.toString() == "CN") {
-        this.$i18n.locale = "ch";
-        Ls.set("countryLang", iso2.toString());
-      }
-    },
+    // onSelect({ name, iso2, dialCode }) {
+    //   if (iso2.toString() == "US") {
+    //     this.$i18n.locale = "en";
+    //     Ls.set("countryLang", iso2.toString());
+    //   } else if (iso2.toString() == "CN") {
+    //     this.$i18n.locale = "ch";
+    //     Ls.set("countryLang", iso2.toString());
+    //   }
+    // },
     onLoadingTrue(e) {
       this.loading = e;
     },
@@ -98,11 +98,11 @@ export default {
   color: white;
   text-align: center;
 }
-.language-select {
+/* .language-select {
   position: absolute;
   top: 15px;
   right: 190px;
-}
+} */
 .header-brand-title {
   position: absolute;
   top: 33px;
@@ -124,12 +124,6 @@ export default {
 .toast-error {
   background-color: #bd362f !important;
 }
-.current .iti-flag {
-  margin-right: 5px;
-}
-.dropdown-list {
-  width: 180px !important;
-}
 .auth_spinner {
   display: flex;
   align-items: center;
@@ -144,7 +138,7 @@ export default {
   width: 5px !important;
   background-color: rgb(125 188 219) !important;
 }
-.vue-country-select {
+/* .vue-country-select {
   position: relative;
   top: 12px !important;
   border: 1px !important;
@@ -167,5 +161,5 @@ export default {
 }
 .vue-country-select .dropdown-list {
   z-index: 6 !important;
-}
+} */
 </style>

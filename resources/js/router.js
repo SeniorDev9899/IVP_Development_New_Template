@@ -8,7 +8,6 @@ import Basic from './views/admin/dashboard/Basic.vue'
 // Layouts
 import LayoutBasic from './views/layouts/LayoutBasic.vue'
 import LayoutLogin from './views/layouts/LayoutLogin.vue'
-import LayoutPassword from './views/layouts/LayoutPassword.vue'
 
 // Users
 import Users from './views/admin/users/Users.vue'
@@ -17,16 +16,18 @@ import Verification from './views/admin/users/Verification.vue'
 
 // Setting
 import NewUser from './views/admin/users/NewUser.vue'
+import NewAdminUser from './views/admin/users/NewAdminUser.vue'
 import RegionManagement from './views/admin/users/RegionManagement.vue'
+
+// Region Management
+import RegionComponent from './views/admin/users/RegionComponent.vue'
+
+// Regional_Admin Detail
+import RegionAdminDetail from './views/admin/regionInfo/RegionAdminDetail.vue'
+import Practitioners from './views/admin/users/Practitioners.vue';
 
 // Auth
 import Login from './views/auth/Login.vue'
-import Register from './views/auth/Register.vue'
-import PasswordReset from './views/auth/PasswordReset.vue'
-import ResetForm from './views/auth/ResetForm.vue'
-
-// Email_Verification
-import EmailVerification from './views/emailVerification/EmailVerification.vue'
 
 import NotFoundPage from './views/errors/404.vue'
 
@@ -44,28 +45,6 @@ const routes = [
         component: Login,
         name: 'login'
       },
-      {
-        path: 'register',
-        component: Register,
-        name: 'register'
-      }
-    ]
-  },
-
-  {
-    path: '/password',
-    component: LayoutPassword,
-    children: [
-      {
-        path: 'password-reset',
-        component: PasswordReset,
-        name: 'password_reset'
-      },
-      {
-        path: 'reset-form',
-        component: ResetForm,
-        name: 'reset_form'
-      }
     ]
   },
 
@@ -101,18 +80,34 @@ const routes = [
         component: NewUser
       },
 
+      // New Admin User
+      {
+        path: 'new_admin_user',
+        component: NewAdminUser
+      },
+
       // Region Management
       {
         path: 'region_management',
         component: RegionManagement
+      },
+
+      {
+        path: 'regions/:id',
+        component: RegionComponent
+      },
+
+      // Region Detail Page
+      {
+        path: "region/detail/:regionName",
+        component: RegionAdminDetail
+      },
+
+      {
+        path: "region/practitioners",
+        component: Practitioners
       }
     ]
-  },
-
-  {
-    path: '/email_verification',
-    component: EmailVerification,
-    name: 'email_verification'
   },
 
   //  DEFAULT ROUTE

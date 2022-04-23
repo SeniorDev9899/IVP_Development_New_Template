@@ -5,8 +5,8 @@
         <div class="row">
           <div class="col-md-8 mx-auto d-block">
             <div class="">
-              <h1 class="mb-2">{{ $t("login.login") }}</h1>
-              <p class="text-muted">{{ $t("login.login_title") }}</p>
+              <h1 class="mb-2">登录</h1>
+              <p class="text-muted">登录到您的帐户</p>
             </div>
             <hr class="divider my-6" />
             <form
@@ -17,7 +17,7 @@
                 class="input-group mb-3"
                 :class="[
                   'form-group',
-                  { 'is-invalid': $v.loginData.email.$error },
+                  { 'is-invalid': $v.loginData.username.$error },
                 ]"
               >
                 <span class="input-group-addon"
@@ -39,22 +39,27 @@
                     /></svg
                 ></span>
                 <input
-                  :class="{ 'is-invalid': $v.loginData.email.$error }"
-                  v-model.trim="loginData.email"
+                  :class="{ 'is-invalid': $v.loginData.username.$error }"
+                  v-model.trim="loginData.username"
                   class="form-control"
-                  :placeholder="$t('login.placeholder.enter_email')"
-                  type="email"
+                  placeholder="输入用户名"
+                  type="text"
                   id="login-email"
-                  @input="$v.loginData.email.$touch()"
+                  @input="$v.loginData.username.$touch()"
                 />
                 <span
-                  v-if="!$v.loginData.email.required"
+                  v-if="!$v.loginData.username.required"
                   class="invalid-feedback"
                 >
-                  {{ $t("login.validation.email_required") }}
+                  用户名是必需的
                 </span>
-                <span v-if="!$v.loginData.email.email" class="invalid-feedback">
-                  {{ $t("login.validation.email_valid") }}
+                <span
+                  v-if="!$v.loginData.username.minLength"
+                  class="invalid-feedback"
+                >
+                  用户名至少应为
+                  {{ $v.loginData.password.$params.minLength.min }}
+                  字母.
                 </span>
               </div>
               <div
@@ -88,7 +93,7 @@
                   :class="{ 'is-invalid': $v.loginData.password.$error }"
                   v-model.trim="loginData.password"
                   class="form-control"
-                  :placeholder="$t('login.placeholder.enter_password')"
+                  placeholder="輸入密码"
                   type="password"
                   id="login-password"
                   @input="$v.loginData.password.$touch()"
@@ -97,15 +102,15 @@
                   v-if="!$v.loginData.password.required"
                   class="invalid-feedback"
                 >
-                  {{ $t("login.validation.password_required") }}
+                  密码是必需的
                 </span>
                 <span
                   v-if="!$v.loginData.password.minLength"
                   class="invalid-feedback"
                 >
-                  {{ $t("login.validation.password_least") }}
+                  密码必須至少有
                   {{ $v.loginData.password.$params.minLength.min }}
-                  {{ $t("login.validation.letters") }}.
+                  字母.
                 </span>
               </div>
               <div class="other-actions row">
@@ -118,24 +123,24 @@
                         name="remember"
                       />
                       <span class="c-indicator" />
-                      {{ $t("login.remember_me") }}
+                      记住密码
                     </label>
                   </div>
                 </div>
-                <div class="col-sm-6 text-sm-right">
+                <!-- <div class="col-sm-6 text-sm-right">
                   <a href="/password/password-reset" class="forgot-link">
                     {{ $t("login.forgot_password") }}
                   </a>
-                </div>
+                </div> -->
 
                 <div class="col-12">
                   <button type="submit" class="btn btn-primary btn-block">
-                    <i class="fe fe-arrow-right"></i>{{ $t("login.login") }}
+                    <i class="fe fe-arrow-right"></i>登录
                   </button>
                 </div>
               </div>
 
-              <div class="pt-4">
+              <!-- <div class="pt-4">
                 <div class="font-weight-normal fs-16">
                   <span>{{ $t("login.new_here") }}</span>
                   <router-link
@@ -144,7 +149,7 @@
                     >{{ $t("login.create_account") }}</router-link
                   >
                 </div>
-              </div>
+              </div> -->
             </form>
           </div>
         </div>
@@ -154,7 +159,7 @@
 </template>
 
 <script>
-import { required, minLength, email } from "vuelidate/lib/validators";
+import { required, minLength } from "vuelidate/lib/validators";
 import Auth from "../../services/auth";
 import Ls from "./../../services/ls.js";
 
@@ -162,11 +167,10 @@ export default {
   data() {
     return {
       loginData: {
-        email: "admin@laraspace.in",
+        username: "admin",
         password: "admin@123",
         remember: true,
       },
-      validateCaptcha: false,
       loadingEnable: false,
     };
   },
@@ -176,9 +180,9 @@ export default {
         required,
         minLength: minLength(6),
       },
-      email: {
+      username: {
         required,
-        email,
+        minLength: minLength(3),
       },
     },
   },
@@ -191,10 +195,10 @@ export default {
       }
     },
     submitLogin() {
-      this.login(this.$i18n.locale);
+      this.login();
     },
     login(locale) {
-      Auth.login(this.loginData, locale).then((res) => {
+      Auth.login(this.loginData).then((res) => {
         if (res) {
           this.loadingEnable = true;
           this.$emit("loadingTrue", this.loadingEnable);
@@ -219,7 +223,7 @@ export default {
           verified_email: verified_email,
         };
         Auth.updateUserEmailVerificationStatus(updateData).then((res) => {
-          if (Ls.get("Email") == verified_email) {
+          if (Ls.get("User Name") == verified_email) {
             Ls.set("email_verification_status", 1);
           }
         });
@@ -227,19 +231,13 @@ export default {
     } else {
       let emailVerificationStatus = Ls.get("email_verification_status");
       if (emailVerificationStatus == 0) {
-        if (Ls.get("countryLang") == "US") {
-          window.toastr["info"](
-            "Your Email has not been verified yet. Please verify email."
-          );
-        } else if (Ls.get("countryLang") == "CN") {
-          window.toastr["info"]("您的電子郵件尚未經過驗證。 請驗證電子郵件。");
-        }
+        window.toastr["info"]("您的用户名尚未經過驗證。 請驗證用户名。");
       }
     }
 
-    if (Ls.get("Email") !== null) {
-      var email = Ls.get("Email");
-      this.loginData.email = email;
+    if (Ls.get("User Name") !== null) {
+      var user_name = Ls.get("User Name");
+      this.loginData.username = user_name;
     }
     if (Ls.get("auth.token") !== null) {
       if (Ls.get("Role") == "practitioner") {

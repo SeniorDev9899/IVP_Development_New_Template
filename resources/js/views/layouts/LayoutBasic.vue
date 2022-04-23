@@ -8,14 +8,12 @@
         <site-sidebar
           type="basic"
           v-if="user_role === 'admin' || user_role === 'regional_admin'"
-          :lang="lang"
           :user_avatar="user_avatar"
         />
         <div class="app-content main-content">
           <div class="side-app">
             <site-header
               :user_avatar="user_avatar"
-              @changeLang="onChangeLang"
               @occurToggle="onOccurToggle"
               @setUserAvatar="onSetUserAvatar"
             />
@@ -38,7 +36,9 @@
       <router-view
         :emittedRegionAdd="emittedRegionAdd"
         :toggle="toggleEnable"
-        :lang="lang"
+        :region_name="region_name"
+        :region_id_prop="region_id"
+        :practitioners="practitioners"
         @userAvatarChange="onUserAvatarChange"
         @addNewRegion="onAddNewRegion"
       />
@@ -57,9 +57,11 @@ export default {
       user_role: "",
       user_avatar: "",
       toggleEnable: false,
-      lang: null,
       showToggleButton: false,
       emittedRegionAdd: "",
+      region_name: "",
+      region_id: 0,
+      practitioners: false,
     };
   },
   components: {
@@ -87,9 +89,6 @@ export default {
         menu.classList.remove("sidenav-toggled");
         this.toggleEnable = !this.toggleEnable;
       }
-    },
-    onChangeLang(lang) {
-      this.lang = lang;
     },
     onOccurToggle(e) {
       if (e == true) {

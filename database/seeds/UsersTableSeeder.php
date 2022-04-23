@@ -13,9 +13,8 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         User::create([
-            'email' => 'AlexRossitha99@gmail.com',
-            'first_name' => 'Alex',
-            'last_name' => "Rossi",
+            'username' => 'admin_AlexRossitha99',
+            'name' => 'Alex Rossi',
             'role' => 'admin',
             'password' => Hash::make('IvanP.9899'),
             'gender' => 'male',
@@ -31,9 +30,8 @@ class UsersTableSeeder extends Seeder
         ]);
 
         User::create([
-            'email' => 'SergeyLee199885@gmail.com',
-            'first_name' => 'Sergey',
-            'last_name' => "Lee",
+            'username' => 'SergeyLee199885',
+            'name' => 'Sergey Lee',
             'role' => 'practitioner',
             'password' => Hash::make('IvanP.9899'),            
             'gender' => 'male',
@@ -49,9 +47,8 @@ class UsersTableSeeder extends Seeder
         ]);
 
         User::create([
-            'email' => 'IvanPetrovich199899@gmail.com',
-            'first_name' => 'Ivan',
-            'last_name' => 'Petrovich',
+            'username' => 'IvanPetrovich199899',
+            'name' => 'Ivan Petrovich',
             'role' => 'practitioner',
             'password' => Hash::make('IvanP.9899'),            
             'gender' => 'male',

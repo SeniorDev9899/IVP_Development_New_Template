@@ -8,97 +8,74 @@
     "
   >
     <div class="page-header">
-      <h3 class="page-title">{{ $t("settings.new_user") }}</h3>
+      <h3 class="page-title">新增用户</h3>
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">{{ $t("settings.sys_man") }}</a>
+          <a href="#">系统管理</a>
         </li>
-        <li class="breadcrumb-item active">{{ $t("settings.new_user") }}</li>
+        <li class="breadcrumb-item active">新增用户</li>
       </ol>
     </div>
     <div class="row">
       <div class="col-sm-12">
         <div class="card">
           <div class="card-header">
-            <h6>{{ $t("settings.new_user") }}</h6>
+            <h6>新增用户</h6>
           </div>
           <div class="card-body">
             <div class="edit-personal-profile">
               <b-form @submit.stop.prevent="addNewMember">
                 <div class="user-name-edit">
                   <b-form-group
-                    id="first-name-input-group"
-                    :label="$t('profile.first_name')"
-                    label-for="first-name-input"
+                    id="name-input-group"
+                    label="真实姓名"
+                    label-for="name-input"
                   >
                     <b-form-input
-                      id="first-name-input"
-                      name="first-name-input"
-                      v-model="addMemberData.first_name"
+                      id="name-input"
+                      name="name-input"
+                      v-model="addMemberData.name"
                       v-validate="{ required: true, min: 3 }"
-                      :state="validateState('first-name-input')"
-                      aria-describedby="first-name-input-live-feedback"
-                      data-vv-as="First Name"
+                      :state="validateState('name-input')"
+                      aria-describedby="name-input-live-feedback"
+                      data-vv-as="Name"
                     ></b-form-input>
 
-                    <b-form-invalid-feedback
-                      id="first-name-input-live-feedback"
-                      >{{
-                        veeErrors.first("first-name-input")
-                      }}</b-form-invalid-feedback
-                    >
-                  </b-form-group>
-
-                  <b-form-group
-                    id="last-name-input-group"
-                    :label="$t('profile.last_name')"
-                    label-for="last-name-input"
-                  >
-                    <b-form-input
-                      id="last-name-input"
-                      name="last-name-input"
-                      v-model="addMemberData.last_name"
-                      v-validate="{ required: true, min: 3 }"
-                      :state="validateState('last-name-input')"
-                      aria-describedby="last-name-input-live-feedback"
-                      data-vv-as="Last Name"
-                    ></b-form-input>
-
-                    <b-form-invalid-feedback
-                      id="last-name-input-live-feedback"
-                      >{{
-                        veeErrors.first("last-name-input")
-                      }}</b-form-invalid-feedback
-                    >
+                    <b-form-invalid-feedback id="name-input-live-feedback">{{
+                      veeErrors.first("name-input")
+                    }}</b-form-invalid-feedback>
                   </b-form-group>
                 </div>
 
-                <div class="email-edit">
+                <div class="username-edit">
                   <b-form-group
-                    id="email-input-group"
-                    :label="$t('profile.email')"
-                    label-for="email-input"
+                    id="username-input-group"
+                    label="用户名"
+                    label-for="username-input"
                   >
                     <b-form-input
-                      id="email-input"
-                      name="email-input"
-                      v-model="addMemberData.email"
+                      id="username-input"
+                      name="username-input"
+                      v-model="addMemberData.username"
                       v-validate="{ required: true, min: 3 }"
-                      :state="validateState('email-input')"
-                      aria-describedby="email-input-live-feedback"
-                      data-vv-as="Email"
+                      :state="validateState('username-input')"
+                      aria-describedby="username-input-live-feedback"
+                      data-vv-as="User Name"
                     ></b-form-input>
 
-                    <b-form-invalid-feedback id="email-input-live-feedback">{{
-                      veeErrors.first("email-input")
-                    }}</b-form-invalid-feedback>
+                    <b-form-invalid-feedback
+                      id="username-input-live-feedback"
+                      >{{
+                        veeErrors.first("username-input")
+                      }}</b-form-invalid-feedback
+                    >
                   </b-form-group>
                 </div>
 
                 <div class="password-edit">
                   <b-form-group
                     id="new-password-input-group"
-                    :label="$t('settings.password')"
+                    label="密码"
                     label-for="new-password-input"
                   >
                     <b-form-input
@@ -123,7 +100,7 @@
 
                   <b-form-group
                     id="confirm-password-input-group"
-                    :label="$t('settings.confirm_password')"
+                    label="确认密码"
                     label-for="confirm-password-input"
                   >
                     <b-form-input
@@ -149,7 +126,7 @@
                 <div class="user-gender-role-edit">
                   <b-form-group
                     id="gender-input-group"
-                    :label="$t('profile.gender')"
+                    label="性別"
                     label-for="gender-input"
                   >
                     <b-form-select
@@ -167,33 +144,9 @@
                       veeErrors.first("gender-input")
                     }}</b-form-invalid-feedback>
                   </b-form-group>
-
-                  <b-form-group
-                    id="role-input-group"
-                    :label="$t('profile.role')"
-                    label-for="role-input"
-                  >
-                    <b-form-select
-                      id="role-input"
-                      name="role-input"
-                      v-model="addMemberData.role"
-                      v-validate="{ required: true }"
-                      :state="validateState('role-input')"
-                      aria-describedby="role-input-live-feedback"
-                      data-vv-as="Role"
-                      :options="roles"
-                    ></b-form-select>
-
-                    <b-form-invalid-feedback id="role-input-live-feedback">{{
-                      veeErrors.first("role-input")
-                    }}</b-form-invalid-feedback>
-                  </b-form-group>
-                </div>
-
-                <div class="id-serial-edit">
                   <b-form-group
                     id="id-input-group"
-                    :label="$t('profile.id_number')"
+                    label="身份证号码"
                     label-for="id-input"
                   >
                     <b-form-input
@@ -210,32 +163,12 @@
                       veeErrors.first("id-input")
                     }}</b-form-invalid-feedback>
                   </b-form-group>
-
-                  <b-form-group
-                    id="serial-input-group"
-                    :label="$t('profile.serial_number')"
-                    label-for="serial-input"
-                  >
-                    <b-form-input
-                      id="serial-input"
-                      name="serial-input"
-                      v-model="addMemberData.serial_number"
-                      v-validate="{ required: true }"
-                      :state="validateState('serial-input')"
-                      aria-describedby="serial-input-live-feedback"
-                      data-vv-as="Serial Number"
-                    ></b-form-input>
-
-                    <b-form-invalid-feedback id="serial-input-live-feedback">{{
-                      veeErrors.first("serial-input")
-                    }}</b-form-invalid-feedback>
-                  </b-form-group>
                 </div>
 
                 <div class="validiaty_period-edit">
                   <b-form-group
                     id="vp-input-group"
-                    :label="$t('profile.validity_period')"
+                    label="有效期"
                     label-for="vp-input"
                   >
                     <b-form-datepicker
@@ -244,7 +177,7 @@
                       :state="validateState('vp-input')"
                       v-validate="{ required: true }"
                       v-model="addMemberData.validity_period"
-                      :locale="locale"
+                      locale="zh"
                       :start-weekday="weekday"
                       :show-decade-nav="showDecadeNav"
                       :hide-header="hideHeader"
@@ -260,7 +193,7 @@
                 <div class="company-region-edit">
                   <b-form-group
                     id="company-input-group"
-                    :label="$t('profile.company')"
+                    label="公司"
                     label-for="company-input"
                   >
                     <b-form-input
@@ -280,7 +213,7 @@
 
                   <b-form-group
                     id="region-input-group"
-                    :label="$t('profile.region')"
+                    label="地区"
                     label-for="region-input"
                   >
                     <b-form-select
@@ -303,7 +236,7 @@
                 <div class="verification-health-edit">
                   <b-form-group
                     id="health-input-group"
-                    :label="$t('profile.health_status')"
+                    label="健康状况"
                     label-for="health-input"
                   >
                     <b-form-select
@@ -325,9 +258,7 @@
 
                 <div class="submit-reset">
                   <b-button class="user-info-submit" type="submit">
-                    <span v-if="loadingPage == false">{{
-                      $t("settings.create")
-                    }}</span>
+                    <span v-if="loadingPage == false">确认</span>
                     <clip-loader :loading="loadingPage"></clip-loader>
                   </b-button>
                 </div>
@@ -338,8 +269,7 @@
       </div>
     </div>
     <sweet-modal ref="success_modal" icon="success">
-      {{ $t("users.addMember.new") }} {{ addMemberData.role }}
-      {{ $t("users.addMember.added") }}
+      {{ addMemberData.role }} 创建成功！
     </sweet-modal>
   </div>
 </template>
@@ -355,8 +285,7 @@ export default {
     return {
       user_role: "",
       addMemberData: {
-        first_name: "",
-        last_name: "",
+        name: "",
         password: "",
         password_confirmation: "",
         email: "",
@@ -370,14 +299,13 @@ export default {
         health_status: "normal",
       },
       genders: [
-        { value: "male", text: "Male" },
-        { value: "female", text: "Female" },
+        { value: "male", text: "男" },
+        { value: "female", text: "女" },
       ],
-      roles: [],
       healthStatues: [
-        { value: "bad", text: "Bad" },
-        { value: "normal", text: "Normal" },
-        { value: "good", text: "Good" },
+        { value: "bad", text: "不健康" },
+        { value: "normal", text: "普通的" },
+        { value: "good", text: "健康" },
       ],
       regions: [],
       weekday: 0,
@@ -393,18 +321,6 @@ export default {
   },
   created() {
     this.user_role = Ls.get("Role");
-    if (this.user_role == "admin") {
-      this.roles = [
-        { value: "practitioner", text: "Practitioner" },
-        { value: "regional_admin", text: "Regional Admin" },
-        { value: "admin", text: "System Admin" },
-      ];
-    } else if (this.user_role == "regional_admin") {
-      this.roles = [
-        { value: "practitioner", text: "Practitioner" },
-        { value: "regional_admin", text: "Regional Admin" },
-      ];
-    }
     var today = new Date();
     var date =
       today.getFullYear() +
@@ -432,15 +348,6 @@ export default {
     SweetModalTab,
     ClipLoader,
   },
-  computed: {
-    locale() {
-      if (this.$i18n.locale == "en") {
-        return "en-US";
-      } else if (this.$i18n.locale == "ch") {
-        return "zh";
-      }
-    },
-  },
   methods: {
     getAllRegions() {
       let regions = Auth.getAllRegions().then((res) => {
@@ -449,17 +356,30 @@ export default {
       return regions;
     },
     addNewMember() {
-      this.$validator.validateAll().then((result) => {
+      this.$validator.validateAll().then(async (result) => {
         if (!result) {
           return;
         }
         this.loadingPage = true;
-        Auth.addNewMemberRegister(this.addMemberData).then((res) => {
-          if (res) {
-            this.loadingPage = false;
-            this.$refs.success_modal.open();
-          }
+        let response = await axios.post("/api/email-exist", {
+          username: this.addMemberData.username,
         });
+        if (response.data == false) {
+          toastr["error"]("用户名已经存在", "输入另一个用户名");
+          this.loadingPage = false;
+        } else {
+          Auth.addNewMemberRegister(this.addMemberData)
+            .then((res) => {
+              if (res) {
+                this.loadingPage = false;
+                this.$refs.success_modal.open();
+              }
+            })
+            .catch((error) => {
+              console.log("eror => ", error);
+              this.loadingPage = false;
+            });
+        }
       });
     },
     validateState(ref) {
@@ -484,7 +404,6 @@ export default {
   background-color: rgb(240 246 247);
   padding: 10px;
 }
-.user-name-edit,
 .id-serial-edit,
 .user-gender-role-edit,
 .company-region-edit {
@@ -493,10 +412,8 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.user-name-edit #first-name-input-group,
-.user-name-edit #last-name-input-group,
 .user-gender-role-edit #gender-input-group,
-.user-gender-role-edit #role-input-group,
+.user-gender-role-edit #id-input-group,
 .id-serial-edit #id-input-group,
 .id-serial-edit #serial-input-group,
 .company-region-edit #region-input-group,

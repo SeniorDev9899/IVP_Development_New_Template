@@ -1,8 +1,7 @@
 <template>
   <footer class="site-footer">
     <div class="text-right">
-      {{ $t("footer.powered") }}
-      <a href="#" target="_blank"> {{ $t("footer.title") }} </a>
+      <a href="#" target="_blank"> 管理平台 </a>
     </div>
   </footer>
 </template>
