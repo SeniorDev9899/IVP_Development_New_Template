@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import AuthService from './services/auth'
+import LocalStorage from './services/ls'
 
 // Dashboard
 import Basic from './views/admin/dashboard/Basic.vue'
@@ -126,7 +127,24 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(m => m.meta.requiresAuth)) {
     return AuthService.check().then(authenticated => {
       if (!authenticated) {
-        return next({ path: '/login' })
+        let user_id = LocalStorage.get("user_id");
+        AuthService.setOffline(user_id).then((res) => {
+          if (res.data) {
+            LocalStorage.remove('user_id')
+            LocalStorage.remove('auth.token')
+            LocalStorage.remove('Name')
+            LocalStorage.remove('User Name')
+            LocalStorage.remove('Role')
+            LocalStorage.remove('Gender')
+            LocalStorage.remove('user_avatar')
+            LocalStorage.remove('Registered_User')
+            LocalStorage.remove('Region Name')
+            LocalStorage.remove("email_verification_status")
+            LocalStorage.remove("User Region ID")
+            return next({ path: '/login' });
+          }
+        })
+
       }
 
       return next()

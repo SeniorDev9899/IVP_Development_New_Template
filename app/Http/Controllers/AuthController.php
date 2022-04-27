@@ -153,7 +153,8 @@ class AuthController extends Controller
             // something went wrong whilst attempting to encode the token
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
-
+        
+        User::where("username", $request->username)->update(["online" => true]);
         $user = User::where('username',$request->username)->get();
         $userRegionID = Regions::where('name', $user[0]->region)->pluck('id')->first();
         // all good so return the token
@@ -162,6 +163,10 @@ class AuthController extends Controller
             'user_data' => $user,
             'user_region_id' => $userRegionID
         ]);
+    }
+
+    public function checkOnlineUsers() {
+        return $onlineUsers = User::where("online", 1)->get();
     }
 
     public function check(){
@@ -176,6 +181,12 @@ class AuthController extends Controller
     public function updateUserEmailVerification(Request $request) {
         return User::where('email',$request->verified_email)->update([
             'email_verification_status' => $request->verification
+        ]);
+    }
+
+    public function setOffline($id) {
+        return User::where("id", $id)->update([
+            'online' => false
         ]);
     }
 

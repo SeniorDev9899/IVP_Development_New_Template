@@ -198,16 +198,27 @@ export default {
       this.login();
     },
     login(locale) {
-      Auth.login(this.loginData).then((res) => {
-        if (res) {
-          this.loadingEnable = true;
-          this.$emit("loadingTrue", this.loadingEnable);
-          if (Ls.get("Role") == "admin" || Ls.get("Role") == "regional_admin") {
-            this.$router.push("/admin/users/all");
-          } else if (Ls.get("Role") == "practitioner") {
-            let user_id = Ls.get("user_id");
-            this.$router.push("/admin/users/profile/" + user_id);
-          }
+      Auth.checkOnlineUsers().then((res) => {
+        console.log("Response => ", res.data);
+        let numberOfOnlineUsers = res.data.length;
+        if (numberOfOnlineUsers < 10) {
+          Auth.login(this.loginData).then((res) => {
+            if (res) {
+              this.loadingEnable = true;
+              this.$emit("loadingTrue", this.loadingEnable);
+              if (
+                Ls.get("Role") == "admin" ||
+                Ls.get("Role") == "regional_admin"
+              ) {
+                this.$router.push("/admin/users/all");
+              } else if (Ls.get("Role") == "practitioner") {
+                let user_id = Ls.get("user_id");
+                this.$router.push("/admin/users/profile/" + user_id);
+              }
+            }
+          });
+        } else {
+          window.toastr["info"]("在线用户数量已经结束。 请等到用户注销。");
         }
       });
     },

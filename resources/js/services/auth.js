@@ -1,6 +1,14 @@
 import Ls from './ls'
 
 export default {
+  async checkOnlineUsers() {
+    try {
+      let response = await axios.get("/api/auth/checkOnlineUsers");
+      return response;
+    } catch (error) {
+      console.log("Error => ", error.message);
+    }
+  },
   async login(loginData) {
     try {
       let response = await axios.post('/api/auth/login', loginData)
@@ -128,6 +136,15 @@ export default {
       return response;
     } catch (error) {
       console.log("error => ", error);
+    }
+  },
+
+  async setOffline(user_id) {
+    try {
+      let response = await axios.get(`/api/auth/setOffline/${user_id}`);
+      return response;
+    } catch (error) {
+      console.log("Error => ", error.message);
     }
   },
 

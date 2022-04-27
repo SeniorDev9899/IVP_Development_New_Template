@@ -92,7 +92,7 @@ export default {
       color_dark: "rgb(38 129 223)",
       color_light: "white",
       output: null,
-      tooltip_text: "下载身份证",
+      tooltip_text: "下载身份信息识别卡",
       position: "top",
     };
   },
@@ -140,7 +140,9 @@ export default {
       this.output = await this.$html2canvas(el, options);
       fetch(this.output)
         .then((res) => res.blob())
-        .then((blob) => this.saveAs(blob, "Identity_Card.jpg"));
+        .then((blob) =>
+          this.saveAs(blob, "Identity_Card_" + this.name_sub + ".jpg")
+        );
     },
     saveAs(blob, name, opts) {
       var URL = _global.URL || _global.webkitURL;

@@ -427,8 +427,12 @@ export default {
       this.$emit("occurToggle", e);
     },
     logout() {
-      Auth.logout().then(() => {
-        this.$router.replace("/login");
+      let user_id = Ls.get("user_id");
+      Auth.setOffline(user_id).then((res) => {
+        console.log("Res Offline => ", res.data);
+        Auth.logout().then(() => {
+          this.$router.replace("/login");
+        });
       });
     },
     navigateToProfile() {

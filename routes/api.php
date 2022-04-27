@@ -17,7 +17,9 @@ use Illuminate\Http\Request;
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login','AuthController@authenticate');
     Route::post('register','AuthController@store');
+    Route::get('setOffline/{id}', 'AuthController@setOffline');
     Route::get('logout','AuthController@logout');
+    Route::get('checkOnlineUsers', 'AuthController@checkOnlineUsers');
     Route::get('check','AuthController@check');
     Route::group(['prefix' => 'new'], function () {
         Route::post('/register', [

@@ -361,44 +361,62 @@
                           " -->
 
                         <div class="mt-3 remark_name">
-                          <div>选择的文件 : {{ remark_file_name }}</div>
+                          <!-- <div>选择的文件 : {{ remark_file_name }}</div> -->
+                          <div><span>选择的文件 : </span></div>
                           <div
-                            class="file-actions"
-                            v-if="remark_file_name != ''"
+                            class="file_names"
+                            v-if="remark_file_names.length"
                           >
-                            <div class="download">
-                              <span
-                                @click="downloadFile"
-                                v-tooltip="{
-                                  content: tooltip_text,
-                                  placement: position + '-center',
-                                  delay: {
-                                    show: 200,
-                                    hide: 300,
-                                  },
-                                  classes: ['info'],
-                                }"
-                                ><i
-                                  class="fa fa-download"
-                                  aria-hidden="true"
-                                ></i
-                              ></span>
-                            </div>
-                            <div class="delete">
-                              <span
-                                @click="deleteFile"
-                                v-tooltip="{
-                                  content: tooltip_text_delete,
-                                  placement: position + '-center',
-                                  delay: {
-                                    show: 200,
-                                    hide: 300,
-                                  },
-                                  classes: ['info'],
-                                }"
-                                ><i class="fa fa-trash" aria-hidden="true"></i
-                              ></span>
-                            </div>
+                            <b-list-group horizontal="sm">
+                              <b-list-group-item
+                                v-for="file_name in remark_file_names"
+                                :key="file_name.id"
+                                >{{ file_name.name }}
+                                <div class="file-actions">
+                                  <div class="download">
+                                    <span
+                                      @click="
+                                        downloadFile(
+                                          file_name.name,
+                                          file_name.id
+                                        )
+                                      "
+                                      v-tooltip="{
+                                        content: tooltip_text,
+                                        placement: position + '-center',
+                                        delay: {
+                                          show: 200,
+                                          hide: 300,
+                                        },
+                                        classes: ['info'],
+                                      }"
+                                      ><i
+                                        class="fa fa-download"
+                                        aria-hidden="true"
+                                      ></i
+                                    ></span>
+                                  </div>
+                                  <div class="delete">
+                                    <span
+                                      @click="deleteFile(file_name.id)"
+                                      v-tooltip="{
+                                        content: tooltip_text_delete,
+                                        placement: position + '-center',
+                                        delay: {
+                                          show: 200,
+                                          hide: 300,
+                                        },
+                                        classes: ['info'],
+                                      }"
+                                      ><i
+                                        class="fa fa-trash"
+                                        aria-hidden="true"
+                                      ></i
+                                    ></span>
+                                  </div>
+                                </div>
+                              </b-list-group-item>
+                            </b-list-group>
                           </div>
                         </div>
 
@@ -626,9 +644,27 @@ export default {
       this.user_health_status_sub = newVal;
     },
     remarkInfo: function (newVal, oldVal) {
-      let length = newVal.split("/").length;
-      this.remark_file_name = newVal.split("/")[length - 1];
-      this.remark_file_path = newVal;
+      // let length = newVal.split("/").length;
+      // this.remark_file_name = newVal.split("/")[length - 1];
+      // this.remark_file_path = newVal;
+      if (newVal) {
+        let splittedFilePaths = newVal.split(" , ");
+        let exist = this;
+        exist.remark_file_paths = splittedFilePaths.map((item, index) => {
+          if (item != "") {
+            let splits = item.split("/");
+            let length = splits.length;
+            exist.remark_file_names.push({
+              id: index,
+              name: splits[length - 1],
+            });
+            return {
+              id: index,
+              path: item,
+            };
+          }
+        });
+      }
     },
     comments: function (newVal, oldVal) {
       this.user_comments = newVal;
@@ -648,8 +684,8 @@ export default {
       user_company_sub: "",
       user_region_sub: "",
       user_remark_info: null,
-      remark_file_name: "",
-      remark_file_path: "",
+      remark_file_names: [],
+      remark_file_paths: [],
       user_comments: null,
       tooltipText_sub: null,
       user_id_sub: "",
@@ -689,6 +725,7 @@ export default {
       tooltip_text: "文件下载",
       tooltip_text_delete: "删除文件",
       position: "top",
+      filteredRemarkFilePaths: null,
     };
   },
   components: {
@@ -724,27 +761,45 @@ export default {
     this.getCompaniesWithRegionName(this.user_region_sub);
     this.user_health_status_sub = this.user_health_status;
     this.tooltipText_sub = this.tooltipText;
-    let length = this.remarkInfo.split("/").length;
-    this.remark_file_name = this.remarkInfo.split("/")[length - 1];
-    this.remark_file_path = this.remarkInfo;
-    this.user_comments = this.comments;
-    this.loadingPage = false;
+    // let length = this.remarkInfo.split("/").length;
+    // this.remark_file_name = this.remarkInfo.split("/")[length - 1];
+    // this.remark_file_path = this.remarkInfo;
+    let exist = this;
+    if (exist.remarkInfo) {
+      let splittedFilePaths = exist.remarkInfo.split(" , ");
+      exist.remark_file_paths = splittedFilePaths.map((item, index) => {
+        if (item != "") {
+          let splits = item.split("/");
+          let length = splits.length;
+          exist.remark_file_names.push({
+            id: index,
+            name: splits[length - 1],
+          });
+          return {
+            id: index,
+            path: item,
+          };
+        }
+      });
+    }
+    exist.user_comments = this.comments;
+    exist.loadingPage = false;
 
-    this.originalData = {
-      name: this.name_sub,
-      username: this.username_sub,
-      gender: this.user_gender_sub,
-      role: this.user_role_sub,
-      id_number: this.user_id_number_sub,
-      serial_number: this.user_serial_number_sub,
-      company: this.user_company_sub,
-      region: this.user_region_sub,
-      picture: this.user_picture_sub,
-      health_status: this.user_health_status_sub,
-      validity_period: this.user_validity_period_sub,
+    exist.originalData = {
+      name: exist.name_sub,
+      username: exist.username_sub,
+      gender: exist.user_gender_sub,
+      role: exist.user_role_sub,
+      id_number: exist.user_id_number_sub,
+      serial_number: exist.user_serial_number_sub,
+      company: exist.user_company_sub,
+      region: exist.user_region_sub,
+      picture: exist.user_picture_sub,
+      health_status: exist.user_health_status_sub,
+      validity_period: exist.user_validity_period_sub,
     };
-    this.getAllRegions().then((res) => {
-      this.regions = res.map((region) => {
+    exist.getAllRegions().then((res) => {
+      exist.regions = res.map((region) => {
         return {
           value: region.name,
           text: region.name,
@@ -823,12 +878,12 @@ export default {
             },
           };
           let formData = new FormData();
-          if (this.remark_file_path != "") {
-            formData.append(
-              "remark_file_path",
-              this.remark_file_path.substring(1)
-            );
-          }
+          // if (this.remark_file_path != "") {
+          //   formData.append(
+          //     "remark_file_path",
+          //     this.remark_file_path.substring(1)
+          //   );
+          // }
           formData.append("user_remark_info", this.user_remark_info);
           formData.append("username", this.username_sub);
           formData.append("user_id", this.user_id_sub);
@@ -837,8 +892,26 @@ export default {
             axios
               .post("/api/admin/user/setUserRemarkInfo", formData, config)
               .then(function (res) {
-                exist.remark_file_path = res.data;
-                exist.$emit("fileChanged", exist.remark_file_path);
+                if (res.data != "") {
+                  let splits = res.data.split(" , ");
+
+                  let length = splits.length;
+
+                  let file_name_length = exist.remark_file_names.length;
+                  let file_path_length = exist.remark_file_paths.length;
+
+                  exist.remark_file_paths.push({
+                    id: file_path_length,
+                    path: splits[length - 1],
+                  });
+
+                  let pathSplits = splits[length - 1].split("/");
+                  let pathSplitsLength = pathSplits.length;
+                  exist.remark_file_names.push({
+                    id: file_name_length,
+                    name: pathSplits[pathSplitsLength - 1],
+                  });
+                }
               });
           }
         }
@@ -1078,23 +1151,52 @@ export default {
         ];
       }
     },
-    downloadFile() {
-      this.$emit("downloadFile", this.remark_file_name);
+    downloadFile(name, id) {
+      if (this.remark_file_paths.length) {
+        if (!!this.remark_file_paths[id]) {
+          this.$emit("downloadFile", name, this.remark_file_paths[id].path);
+        }
+      }
     },
-    async deleteFile() {
+    async deleteFile(fileId) {
       const id = this.user_id_sub;
-      let fileInfo = {
-        path: this.remark_file_path.substring(1),
-      };
-      let response = await axios.post(
-        `/api/admin/user/delete/remarkInfo/${id}`,
-        fileInfo
-      );
-      if (response.data == 1) {
-        this.remark_file_name = "";
-        this.remark_file_path = "";
-        this.user_remark_info = null;
-        window.toastr["success"]("历史记录已删除！", "成功");
+      if (this.remark_file_paths.length) {
+        let remainedFiles = this.remark_file_paths.filter(
+          (item) => item.id !== fileId
+        );
+        var remainedFilesString = "";
+        remainedFiles.forEach((item, index) => {
+          if (index < remainedFiles.length - 1) {
+            remainedFilesString += item.path;
+            remainedFilesString += " , ";
+          } else if (index == remainedFiles.length - 1) {
+            remainedFilesString += item.path;
+          }
+        });
+        if (remainedFilesString == "") {
+          remainedFilesString = "...";
+        }
+        this.filteredRemarkFilePaths = this.remark_file_paths.filter(
+          (item) => item.id == fileId
+        );
+        let fileInfo = {
+          path: this.filteredRemarkFilePaths[0].path.substring(1),
+          remainedFiles: remainedFilesString,
+        };
+        let response = await axios.post(
+          `/api/admin/user/delete/remarkInfo/${id}`,
+          fileInfo
+        );
+        if (response.data == 1) {
+          this.remark_file_names = this.remark_file_names.filter(
+            (item) => item.id != fileId
+          );
+          this.remark_file_paths = this.remark_file_paths.filter(
+            (item) => item.id != fileId
+          );
+          this.user_remark_info = null;
+          window.toastr["success"]("历史记录已删除！", "成功");
+        }
       }
     },
   },
@@ -1173,8 +1275,9 @@ export default {
 }
 .remark_name {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 .file-actions {
   display: flex;
@@ -1199,7 +1302,12 @@ export default {
   color: rgb(253 4 62);
 }
 .file-actions {
-  margin-right: 35px;
+  margin: 0px auto;
+  margin-top: 5px;
+}
+.file_names {
+  margin-left: 10px;
+  margin-top: 5px;
 }
 </style>
 

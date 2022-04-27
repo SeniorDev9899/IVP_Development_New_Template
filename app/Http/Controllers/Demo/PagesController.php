@@ -95,17 +95,25 @@ class PagesController extends Controller
         return User::where('id', $id)->get();
     }
 
-    public function setUserRemarkInfo(Request $request) {        
+    public function setUserRemarkInfo(Request $request) {      
+        
+        $original_file_path = User::where('id', $request->user_id)->pluck("remark_file")->first();
 
         if($request->file('user_remark_info')) {
-            $file_name = $request->username.'_'.$request->file('user_remark_info')->getClientOriginalName();
+            $file_name = $request->username. "_" . time().'_' . '_'.$request->file('user_remark_info')->getClientOriginalName();
             $file_path = $request->file('user_remark_info')->storeAs('uploads', $file_name, 'public');
-            if($request->remark_file_path) {
-                File::delete($request->remark_file_path);
+            // if($request->remark_file_path) {
+            //     File::delete($request->remark_file_path);
+            // }
+            if($original_file_path == "...") {
+                User::where('id',$request->user_id)->update([
+                    'remark_file' => '/storage/' . $file_path
+                ]);
+            } else {
+                User::where('id',$request->user_id)->update([
+                    'remark_file' => $original_file_path . " , " . '/storage/' . $file_path
+                ]);
             }
-            User::where('id',$request->user_id)->update([
-                'remark_file' => '/storage/' . $file_path
-            ]);
             return User::where('id', $request->user_id)->pluck("remark_file")->first();
         }
     }
@@ -214,7 +222,7 @@ class PagesController extends Controller
             File::delete($request->path);
         }
         return User::where('id', $id)->update([
-            'remark_file' => ''
+            'remark_file' => $request->remainedFiles
         ]);
     }
 

@@ -67,7 +67,6 @@
             @produceQR="onProduceQR"
             @updateKeepUserInfo="onUpdateKeepUserInfo"
             @downloadFile="onDownloadFile"
-            @fileChanged="onFileChanged"
           />
         </b-tab>
         <b-tab>
@@ -449,16 +448,10 @@ export default {
           fileDownload(res.data, filename);
         });
     },
-    onDownloadFile(fileName) {
-      this.downloadFile(
-        "http://43.135.48.73" + this.remark_file_path,
-        fileName
-      );
+    onDownloadFile(fileName, filePath) {
+      this.downloadFile("http://43.135.48.73" + filePath, fileName);
     },
     // "http://43.135.48.73"
-    onFileChanged(filePath) {
-      this.remark_file_path = filePath;
-    },
   },
 };
 </script>
